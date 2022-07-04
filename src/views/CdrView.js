@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
-import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
-import { dummyExtGroup } from "../DUMMY_DATA";
 
 import { secondsToHHMMSS } from "../functions/functions";
 import CallTypeOptions from "../components/CallTypeOptions";
@@ -19,9 +17,7 @@ import DispositionOptions from "../components/DispositionOptions";
 import RequestOptions from "../components/cdr/RequestOptions";
 import CdrSummary from "../components/cdr/CdrSummary";
 
-const CdrView = (props) => {
-  // Destructuring props from App.js where state for connection and cookie are stores
-  const { userMethod, userIpAddress, userPort, gsCookie } = props;
+const CdrView = ({ userMethod, userIpAddress, userPort, gsCookie }) => {
   // Loading state for dataGrid and summary
   const [isLoading, setIsLoading] = useState(true);
   // States for initial cdr data and filtered data is user presses filter checkboxes
@@ -57,19 +53,35 @@ const CdrView = (props) => {
   const [callOptionsFilters, setCallOptionsFilters] = useState([]);
   const [dispositionFilters, setDispositionFilters] = useState([]);
 
-  const createPdf = () => {
-    const doc = new jsPDF();
-    const pdfTableData = filteredGsCdrApi.map((obj) => {
+  const buildPdf = () => {
+    // Takes filtered cdr data and maps it to a new array. Removing not required data
+    const rows = filteredGsCdrApi.map((obj) => {
       return {
-        Destination: obj.dst,
-        Start: obj.start,
-        End: obj.end,
-        Duration: obj.billsec,
+        src: obj.src,
+        destination: obj.dst,
+        start: obj.start,
+        end: obj.end,
+        duration: obj.billsec,
       };
     });
+
+    // Columns used by AutoTable
+    const columns = [
+      { title: "Source", dataKey: "src" },
+      { title: "Destination", dataKey: "destination" },
+      { title: "Start", dataKey: "start" },
+      { title: "End", dataKey: "end" },
+      { title: "Duration", dataKey: "duration" },
+    ];
+
+    var doc = new jsPDF("p", "mm");
+    doc.setFontSize(12);
+    doc.setTextColor("#161C22");
+    // Summary of 200,201
     doc.text(`Summary of ${userCallerCreate()}`, 12.7, 12.7, {
       maxWidth: 159.2,
     });
+    // Sat Jun 04 2022 09:00:00 - Mon Jul 04 2022 17:00:00
     doc.text(
       `${userStartDate.toDateString()} ${new Date(
         userStartTime
@@ -77,23 +89,14 @@ const CdrView = (props) => {
         userEndDate
       ).toDateString()} ${new Date(userEndTime).toLocaleTimeString("en-GB")}`,
       12.7,
-      35.4,
+      22.7,
       { maxWidth: 159.2 }
     );
-    doc.text(`Total calls: ${filteredGsCdrApi.length}`, 12.7, 45.4, {
+    // Total calls: 28
+    doc.text(`Total calls: ${filteredGsCdrApi.length}`, 12.7, 32.7, {
       maxWidth: 159.2,
     });
-    doc.text(
-      `Total Duration: ${secondsToHHMMSS(
-        filteredGsCdrApi.reduce(
-          (partialSum, a) => partialSum + Number(a.duration),
-          0
-        )
-      )}`,
-      12.7,
-      55.4,
-      { maxWidth: 159.2 }
-    );
+    // Total Billable: 3:27:43
     doc.text(
       `Total Billable: ${secondsToHHMMSS(
         filteredGsCdrApi.reduce(
@@ -102,17 +105,38 @@ const CdrView = (props) => {
         )
       )}`,
       12.7,
-      65.4,
+      42.7,
       { maxWidth: 159.2 }
     );
-    doc.table(12.7, 75.4, pdfTableData, [
-      "Destination",
-      "Start",
-      "End",
-      "Duration",
-    ]);
+    doc.autoTable(columns, rows, {
+      // First page margin top in mm
+      startY: 50,
+      margin: { horizontal: 10 },
+      styles: { overflow: "linebreak" },
+      bodyStyles: { valign: "top" },
+      columnStyles: { email: { cellWidth: "wrap" } },
+      theme: "striped",
+      showHead: "everyPage",
+      didDrawPage: function (data) {
+        // Any additional pages will use this margin top
+        data.settings.margin.top = 25;
+
+        // Footer page numbering
+        let str = "Page " + doc.internal.getNumberOfPages();
+        doc.setFontSize(10);
+
+        // jsPDF 1.4+ uses getWidth, <1.4 uses .width
+        let pageSize = doc.internal.pageSize;
+        let pageHeight = pageSize.height
+          ? pageSize.height
+          : pageSize.getHeight();
+        doc.text(str, data.settings.margin.left, pageHeight - 10);
+      },
+    });
+    // Build pdf file name e.g.
+    // 200,201,202,205,203,204 - Sat Jun 04 2022 09_00_00 - Mon Jul 04 2022 17_00_00.pdf
     doc.save(
-      `${userCaller} - ${userStartDate.toDateString()} ${new Date(
+      `${userCallerCreate()} - ${userStartDate.toDateString()} ${new Date(
         userStartTime
       ).toLocaleTimeString("en-GB")} - ${new Date(
         userEndDate
@@ -168,7 +192,7 @@ const CdrView = (props) => {
         },
       })
       .then((res) => {
-        console.log(res);
+        console.log(res.data);
         toast.success("CDR API sucessfully read");
         // Filters data to remove empty objects
         let data = fixGsData(res.data.cdr_root.filter((n) => n));
@@ -248,6 +272,7 @@ const CdrView = (props) => {
       });
     }
 
+    
     if (callOptionsFilters.length > 0) {
       data = data.filter((row) => {
         return callOptionsFilters.includes(row.userfield);
@@ -297,7 +322,7 @@ const CdrView = (props) => {
       <CDRDataGrid filteredGsCdrApi={filteredGsCdrApi} isLoading={isLoading} />
       <CdrSummary
         filteredGsCdrApi={filteredGsCdrApi}
-        createPdf={createPdf}
+        createPdf={buildPdf}
         userCallerCreate={userCallerCreate}
       />
     </Container>

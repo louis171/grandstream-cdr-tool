@@ -49,7 +49,11 @@ const App = () => {
   useEffect(() => {
     async function userPref() {
       const data = await electron.userPreferences.load();
-      setColorMode(data.colorMode);
+      if (data) {
+        setColorMode(data.colorMode);
+      } else {
+        setColorMode("light");
+      }
     }
     userPref();
   }, []);

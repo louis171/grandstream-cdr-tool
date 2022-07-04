@@ -51,14 +51,16 @@ const LoginView = (props) => {
       const data = await electron.userDetails.load({
         saveChecked: true,
       });
-      // if Remember Me wasn't ticked then it returns {saveChecked: false}
-      if (data.saveChecked !== false) {
-        setUserMethod(data.userMethod);
-        setUserIpAddress(data.userIpAddress);
-        setUserPort(data.userPort);
-        setUserName(data.userName);
-        setUserPassword(data.userPassword);
-        setSaveChecked(data.saveChecked);
+      if (data) {
+        // if Remember Me wasn't ticked then it returns {saveChecked: false}
+        if (data.saveChecked !== false) {
+          setUserMethod(data.userMethod);
+          setUserIpAddress(data.userIpAddress);
+          setUserPort(data.userPort);
+          setUserName(data.userName);
+          setUserPassword(data.userPassword);
+          setSaveChecked(data.saveChecked);
+        }
       }
     }
     userDetails();
