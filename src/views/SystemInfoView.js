@@ -5,6 +5,7 @@ import axios from "axios";
 import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
+import CssBaseline from "@mui/material/CssBaseline";
 
 import { ToastContainer, toast } from "react-toastify";
 import CardSysInfo from "../components/SystemInfo/CardSysInfo";
@@ -142,6 +143,7 @@ const SystemInfoView = (props) => {
 
   return (
     <Container maxWidth="lg">
+      <CssBaseline />
       <ToastContainer autoClose={2000} />
       <Box
         sx={{

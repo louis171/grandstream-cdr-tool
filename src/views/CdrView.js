@@ -168,7 +168,7 @@ const CdrView = (props) => {
         },
       })
       .then((res) => {
-        console.log(res)
+        console.log(res);
         toast.success("CDR API sucessfully read");
         // Filters data to remove empty objects
         let data = fixGsData(res.data.cdr_root.filter((n) => n));
@@ -181,16 +181,22 @@ const CdrView = (props) => {
       });
   };
 
+  // Creates string used in CdrSummary and PDF
   const userCallerCreate = () => {
+    // If there is a extension group selected
     if (userExtGroup.length > 0) {
+      // Find index of any extension that have been typed into the Caller textfield
       let index = userExtGroup.indexOf(userCaller);
+      // If the extension isn't present in the extension group then add it
       if (index === -1) {
-        return userExtGroup.concat(",", userCaller);
+        return userExtGroup.concat(",", userCaller.trim().replace(" ", ""));
       } else {
+        // else just use the extension group
         return userExtGroup;
       }
+      // If an extension group hasnt been selected then just use the Caller textfield
     } else {
-      return userCaller;
+      return userCaller.trim();
     }
   };
 
@@ -253,6 +259,7 @@ const CdrView = (props) => {
 
   return (
     <Container component="main" maxWidth="lg">
+      <CssBaseline />
       <ToastContainer autoClose={2000} />
       <RequestOptions
         setUserStartDate={setUserStartDate}
@@ -289,7 +296,6 @@ const CdrView = (props) => {
       </Grid>
       <CDRDataGrid filteredGsCdrApi={filteredGsCdrApi} isLoading={isLoading} />
       <CdrSummary
-        userCaller={userCaller}
         filteredGsCdrApi={filteredGsCdrApi}
         createPdf={createPdf}
         userCallerCreate={userCallerCreate}

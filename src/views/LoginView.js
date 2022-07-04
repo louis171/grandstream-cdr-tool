@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import md5 from "md5";
@@ -14,6 +14,11 @@ import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
+import CssBaseline from "@mui/material/CssBaseline";
+
+import FormGroup from "@mui/material/FormGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
 
 import { validateIPaddress } from "../functions/functions";
 
@@ -32,9 +37,32 @@ const LoginView = (props) => {
     setUserPassword,
     userPassword,
     setGsCookie,
+    saveChecked,
+    setSaveChecked,
+    saveUserLogin,
   } = props;
 
   const navigate = useNavigate();
+
+  // useEffect for loading userDetails using ipc
+  useEffect(() => {
+    // Queries ipcMain for userDetails
+    async function userDetails() {
+      const data = await electron.userDetails.load({
+        saveChecked: true,
+      });
+      // if Remember Me wasn't ticked then it returns {saveChecked: false}
+      if (data.saveChecked !== false) {
+        setUserMethod(data.userMethod);
+        setUserIpAddress(data.userIpAddress);
+        setUserPort(data.userPort);
+        setUserName(data.userName);
+        setUserPassword(data.userPassword);
+        setSaveChecked(data.saveChecked);
+      }
+    }
+    userDetails();
+  }, []);
 
   const challengeGs = async (e) => {
     e.preventDefault();
@@ -82,6 +110,7 @@ const LoginView = (props) => {
 
   return (
     <Container component="main" maxWidth="md">
+      <CssBaseline />
       <ToastContainer autoClose={2000} />
       <Box
         sx={{
@@ -126,7 +155,9 @@ const LoginView = (props) => {
                 onChange={(e) => setUserIpAddress(e.target.value)}
                 value={userIpAddress}
                 error={validateIPaddress(userIpAddress)}
-                helperText={validateIPaddress(userIpAddress) ? "Invalid IP Address" : ""}
+                helperText={
+                  validateIPaddress(userIpAddress) ? "Invalid IP Address" : ""
+                }
                 id="connectIpAddress"
                 label="IP Address"
                 variant="outlined"
@@ -136,10 +167,12 @@ const LoginView = (props) => {
               <TextField
                 fullWidth
                 required
-                onChange={(e) => setUserPort(Number(e.target.value))}
+                onChange={(e) => setUserPort(e.target.value)}
                 value={userPort}
                 error={userPort > 0 && userPort <= 65535 ? false : true}
-                helperText={userPort > 0 && userPort <= 65535 ? null : "Invalid port"}
+                helperText={
+                  userPort > 0 && userPort <= 65535 ? null : "Invalid port"
+                }
                 id="connectPort"
                 label="Port"
                 variant="outlined"
@@ -171,6 +204,23 @@ const LoginView = (props) => {
                 variant="outlined"
                 type="password"
               />
+            </Grid>
+            <Grid
+              item
+              xs={12}
+              sm={12}
+              md={12}
+              display="flex"
+              justifyContent="center"
+            >
+              <FormGroup>
+                <FormControlLabel
+                  control={
+                    <Checkbox checked={saveChecked} onChange={saveUserLogin} />
+                  }
+                  label="Remember me"
+                />
+              </FormGroup>
             </Grid>
           </Grid>
           <Button

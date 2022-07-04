@@ -7,23 +7,25 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import ListItem from "@mui/material/ListItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
 import IconButton from "@mui/material/IconButton";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import ApiRoundedIcon from "@mui/icons-material/ApiRounded";
 import InfoRoundedIcon from "@mui/icons-material/InfoRounded";
 import VpnKeyRoundedIcon from "@mui/icons-material/VpnKeyRounded";
-import LocalPhoneRoundedIcon from '@mui/icons-material/LocalPhoneRounded';
+import Box from "@mui/material/Box";
+import Brightness4Icon from "@mui/icons-material/Brightness4";
+import Brightness7Icon from "@mui/icons-material/Brightness7";
 /* import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles"; */
 
 import { Link as RouterLink } from "react-router-dom";
 import Link from "@mui/material/Link";
+import CssBaseline from "@mui/material/CssBaseline";
 
 /* const drawerWidth = 550;
 const transitionDuration = 1000; //can also use theme.transitions.duration */
 
-const NavigationBar = () => {
+const NavigationBar = ({ setColorMode, colorMode, saveColorMode }) => {
   //const theme = useTheme();
   //const greaterThan375 = useMediaQuery("(min-width:376px)");
   //theme.drawerWidth = greaterThan375 ? drawerWidth : "100%";
@@ -35,6 +37,7 @@ const NavigationBar = () => {
 
   return (
     <>
+      <CssBaseline />
       <AppBar position="fixed">
         <Toolbar>
           <IconButton //hide on desktop
@@ -50,6 +53,41 @@ const NavigationBar = () => {
           <Typography variant="h4" component="div" sx={{ flexGrow: 1 }} noWrap>
             Grandstream UCM63XX API
           </Typography>
+          {/* Light/Dark mode toggle button. Handles text change and icon change */}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Button
+              sx={{
+                mr: 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+              color="inherit"
+              onClick={() => saveColorMode()}
+            >
+              <Typography
+                fontSize="inherit"
+                fontWeight="inherit"
+                lineHeight="inherit"
+                letterSpacing="inherit"
+                sx={{ m: 0, mr: 1, p: 0 }}
+              >
+                {colorMode} mode
+              </Typography>
+              {colorMode === "dark" ? (
+                <Brightness7Icon sx={{ m: 0, p: 0, width: "16px" }} />
+              ) : (
+                <Brightness4Icon sx={{ m: 0, p: 0, width: "16px" }} />
+              )}
+            </Button>
+          </Box>
+
           <Link
             sx={{ color: "inherit", textDecoration: "none" }}
             component={RouterLink}
@@ -88,7 +126,9 @@ const NavigationBar = () => {
                 <ListItemIcon>
                   <VpnKeyRoundedIcon />
                 </ListItemIcon>
-                <ListItemText primary="Login" />
+                <Typography sx={{ color: "primary.main" }} variant="body1">
+                  Login
+                </Typography>
               </ListItem>
             </Link>
             <Link
@@ -101,7 +141,9 @@ const NavigationBar = () => {
                 <ListItemIcon>
                   <InfoRoundedIcon />
                 </ListItemIcon>
-                <ListItemText primary="System Info" />
+                <Typography sx={{ color: "primary.main" }} variant="body1">
+                  System Info
+                </Typography>
               </ListItem>
             </Link>
             <Link
@@ -114,7 +156,9 @@ const NavigationBar = () => {
                 <ListItemIcon>
                   <ApiRoundedIcon />
                 </ListItemIcon>
-                <ListItemText primary="CDR API" />
+                <Typography sx={{ color: "primary.main" }} variant="body1">
+                  CDR API
+                </Typography>
               </ListItem>
             </Link>
             {/* <Link
@@ -133,7 +177,7 @@ const NavigationBar = () => {
           </List>
         </div>
       </Drawer>
-      <div style={{ height: "80px" }}></div>
+      <div style={{ height: "100px" }}></div>
     </>
   );
 };

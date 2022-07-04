@@ -1,10 +1,14 @@
 import React from "react";
 import NavigationBar from "./NavigationBar";
 
-const Layout = ({ children }) => {
+const Layout = ({ children, setColorMode, colorMode, saveColorMode }) => {
   return (
     <>
-      <NavigationBar></NavigationBar>
+      <NavigationBar
+        setColorMode={setColorMode}
+        colorMode={colorMode}
+        saveColorMode={saveColorMode}
+      ></NavigationBar>
       {children}
     </>
   );

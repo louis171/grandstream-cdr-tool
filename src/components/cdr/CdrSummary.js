@@ -10,7 +10,11 @@ import PictureAsPdfRoundedIcon from "@mui/icons-material/PictureAsPdfRounded";
 
 import { secondsToHHMMSS } from "../../functions/functions";
 
-const CdrSummary = ({ userCaller, filteredGsCdrApi, createPdf, userCallerCreate }) => {
+const CdrSummary = ({
+  filteredGsCdrApi,
+  createPdf,
+  userCallerCreate,
+}) => {
   return (
     <Grid container spacing={2} sx={{ mt: ".5em" }}>
       <Grid item xs={12} sm={12} md={12} lg={6}>
@@ -19,6 +23,7 @@ const CdrSummary = ({ userCaller, filteredGsCdrApi, createPdf, userCallerCreate 
             <Grid container spacing={3} sx={{ justifyContent: "center" }}>
               <Grid sx={{ width: "100%" }} item>
                 <Typography
+                  noWrap
                   sx={{ width: "100%", textAlign: "center" }}
                   color="primary.main"
                   gutterBottom

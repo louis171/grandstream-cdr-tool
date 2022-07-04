@@ -1,5 +1,16 @@
-const { app, BrowserWindow, protocol } = require("electron");
+const {
+  app,
+  BrowserWindow,
+  protocol,
+  ipcMain,
+  Notification,
+} = require("electron");
 const path = require("path");
+
+const Store = require("electron-store");
+
+//defined the store
+let store = new Store();
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 // eslint-disable-next-line global-require
@@ -8,6 +19,33 @@ if (require("electron-squirrel-startup")) {
 }
 
 const createWindow = () => {
+  //example to display notification
+  ipcMain.on("notify", (_, message) => {
+    new Notification({
+      title: "Grandstream UCM63XX API",
+      body: message,
+    }).show();
+  });
+
+  // Saves user login data
+  ipcMain.on("save-details", (_, details) => {
+    store.set("userDetails", details);
+  });
+
+  // Deletes user login data
+  ipcMain.on("delete-details", (_, details) => {
+    store.delete("userDetails");
+    store.set("userDetails", details);
+  });
+
+  // Saves user preferences e.g.
+  // {
+  //    colorMode: light OR dark
+  // }
+  ipcMain.on("save-pref", (_, pref) => {
+    store.set("userPref", pref);
+  });
+
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 1280,
@@ -19,6 +57,8 @@ const createWindow = () => {
       nodeIntegration: true,
       webSecurity: false,
       allowRunningInsecureContent: true,
+      worldSafeExecuteJavaScript: true,
+      contextIsolation: true,
     },
   });
 
@@ -27,6 +67,14 @@ const createWindow = () => {
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools({ mode: "detach" });
+};
+
+const loadUserDetails = () => {
+  return store.get("userDetails");
+};
+
+const loadUserPref = () => {
+  return store.get("userPref");
 };
 
 protocol.registerSchemesAsPrivileged([
@@ -58,7 +106,15 @@ protocol.registerSchemesAsPrivileged([
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on("ready", createWindow);
+//app.on("ready", createWindow);
+app
+  .whenReady()
+  .then(() => {
+    ipcMain.handle("load-details", loadUserDetails);
+    ipcMain.handle("load-pref", loadUserPref);
+    createWindow();
+  })
+  .catch((err) => console.log(err));
 
 app.commandLine.appendSwitch("ignore-certificate-errors");
 
