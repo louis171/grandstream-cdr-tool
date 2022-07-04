@@ -132,7 +132,7 @@ const SystemInfoView = (props) => {
       })
       .catch((err) => {
         console.log(err);
-        navigate("/login");
+        navigate("/");
         toast.error("Sorry an error occured. Code: 06");
       });
   }, [gsCookie, userIpAddress, userMethod, userPort, navigate]);

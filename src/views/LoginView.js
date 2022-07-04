@@ -77,21 +77,26 @@ const LoginView = (props) => {
 
   const challengeGs = async (e) => {
     e.preventDefault();
-    await axios
-      .post(`${userMethod}://${userIpAddress}:${userPort}/api`, {
-        request: {
-          action: "challenge",
-          user: userName,
-          version: "1.0",
-        },
-      })
-      .then((res) => {
-        loginGs(res.data.response.challenge);
-      })
-      .catch((err) => {
-        console.log(err);
-        toast.error("Sorry an error occured. Code: 00");
-      });
+    if (!userIpAddress || !userPort || !userName || !userPassword) {
+      toast.error("Please enter your login details");
+    } else {
+      await axios
+        .post(`${userMethod}://${userIpAddress}:${userPort}/api`, {
+          request: {
+            action: "challenge",
+            user: userName,
+            version: "1.0",
+          },
+        })
+        .then((res) => {
+          console.log(res);
+          loginGs(res.data.response.challenge);
+        })
+        .catch((err) => {
+          console.log(err);
+          toast.error("Sorry an error occured. Code: 00");
+        });
+    }
   };
 
   const loginGs = async (challenge) => {
@@ -146,6 +151,7 @@ const LoginView = (props) => {
           <Grid container spacing={2}>
             <Grid item xs={12} sm={4} md={4}>
               <SelectGs
+                size="small"
                 name="methodSelect"
                 value={userMethod}
                 updateFunction={setUserMethod}
@@ -169,6 +175,7 @@ const LoginView = (props) => {
             </Grid>
             <Grid item xs={12} sm={4} md={4}>
               <TextfieldGs
+                size="small"
                 value={userIpAddress}
                 updateFunction={setUserIpAddress}
                 adornmentIcon={<NetworkPingRoundedIcon color="primary" />}
@@ -186,6 +193,7 @@ const LoginView = (props) => {
             </Grid>
             <Grid item xs={12} sm={4} md={4}>
               <TextfieldGs
+                size="small"
                 value={userPort}
                 updateFunction={setUserPort}
                 adornmentIcon={<DeviceHubRoundedIcon color="primary" />}
@@ -203,6 +211,7 @@ const LoginView = (props) => {
             </Grid>
             <Grid item xs={12} sm={6} md={6}>
               <TextfieldGs
+                size="small"
                 value={userName}
                 updateFunction={setUserName}
                 adornmentIcon={<PersonRoundedIcon color="primary" />}
@@ -218,6 +227,7 @@ const LoginView = (props) => {
             </Grid>
             <Grid item xs={12} sm={6} md={6}>
               <PasswordGs
+                size="small"
                 value={userPassword}
                 updateFunction={setUserPassword}
                 adornmentIcon={<LockRoundedIcon color="primary" />}

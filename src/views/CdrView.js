@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+import { useNavigate } from "react-router-dom";
 
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
@@ -11,13 +12,14 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import { secondsToHHMMSS } from "../functions/functions";
-import CallTypeOptions from "../components/CallTypeOptions";
+import CallTypeOptions from "../components/cdr/CallTypeOptions";
 import CDRDataGrid from "../components/CDRDataGrid";
-import DispositionOptions from "../components/DispositionOptions";
+import DispositionOptions from "../components/cdr/DispositionOptions";
 import RequestOptions from "../components/cdr/RequestOptions";
 import CdrSummary from "../components/cdr/CdrSummary";
 
 const CdrView = ({ userMethod, userIpAddress, userPort, gsCookie }) => {
+  const navigate = useNavigate();
   // Loading state for dataGrid and summary
   const [isLoading, setIsLoading] = useState(true);
   // States for initial cdr data and filtered data is user presses filter checkboxes
@@ -202,6 +204,7 @@ const CdrView = ({ userMethod, userIpAddress, userPort, gsCookie }) => {
       .catch((err) => {
         console.log(err);
         toast.error("Sorry an error occured. Code: 07");
+        navigate("/");
       });
   };
 
@@ -272,7 +275,6 @@ const CdrView = ({ userMethod, userIpAddress, userPort, gsCookie }) => {
       });
     }
 
-    
     if (callOptionsFilters.length > 0) {
       data = data.filter((row) => {
         return callOptionsFilters.includes(row.userfield);

@@ -40,12 +40,6 @@ import CircleRoundedIcon from "@mui/icons-material/CircleRounded";
 import { ToastContainer, toast } from "react-toastify";
 
 import { dummyExtensionGet } from "../DUMMY_DATA";
-import { titleCase } from "../functions/functions";
-
-import ExtensionToggle from "../components/extension/ExtensionToggle";
-import ExtensionPassword from "../components/extension/ExtensionPassword";
-import ExtensionSelect from "../components/extension/ExtensionSelect";
-import ExtensionTextfield from "../components/extension/ExtensionTextfield";
 
 import LocalPhoneRoundedIcon from "@mui/icons-material/LocalPhoneRounded";
 import PublicRoundedIcon from "@mui/icons-material/PublicRounded";
