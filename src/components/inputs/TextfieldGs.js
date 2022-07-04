@@ -16,11 +16,15 @@ const TextfieldGs = ({
   type,
   label,
   tooltipText,
+  error,
+  helperText
 }) => {
   return (
     <TextField
       sx={sx}
       value={value}
+      error={error}
+      helperText={helperText}
       type={type === "" ? "text" : type}
       size={size === "" ? "medium" : size}
       onChange={(e) => updateFunction(e.target.value)}

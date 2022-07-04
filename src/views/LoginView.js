@@ -23,6 +23,15 @@ import Checkbox from "@mui/material/Checkbox";
 import { validateIPaddress } from "../functions/functions";
 
 import { ToastContainer, toast } from "react-toastify";
+import SelectGs from "../components/inputs/SelectGs";
+
+import HttpsIcon from "@mui/icons-material/Https";
+import NetworkPingRoundedIcon from "@mui/icons-material/NetworkPingRounded";
+import DeviceHubRoundedIcon from "@mui/icons-material/DeviceHubRounded";
+import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
+import LockRoundedIcon from "@mui/icons-material/LockRounded";
+import TextfieldGs from "../components/inputs/TextfieldGs";
+import PasswordGs from "../components/inputs/PasswordGs";
 
 const LoginView = (props) => {
   const {
@@ -136,75 +145,89 @@ const LoginView = (props) => {
         >
           <Grid container spacing={2}>
             <Grid item xs={12} sm={4} md={4}>
-              <FormControl fullWidth required>
-                <Select
-                  fullWidth
-                  required
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  onChange={(e) => setUserMethod(e.target.value)}
-                  value={userMethod}
-                >
-                  <MenuItem value="https">https</MenuItem>
-                  <MenuItem value="http">http</MenuItem>
-                </Select>
-              </FormControl>
+              <SelectGs
+                name="methodSelect"
+                value={userMethod}
+                updateFunction={setUserMethod}
+                adornmentIcon={
+                  <HttpsIcon color="primary" sx={{ mr: ".5em" }} />
+                }
+                adornmentText=""
+                label="Method"
+                menuItems={[
+                  { key: 0, value: "http", label: "http" },
+                  { key: 1, value: "https", label: "https" },
+                ]}
+                adornmentPosition="start"
+                itemValue="value"
+                itemLabel="label"
+                itemKey="key"
+                loading={false}
+                tooltipText="Connection Method"
+                canClear={false}
+              />
             </Grid>
             <Grid item xs={12} sm={4} md={4}>
-              <TextField
-                fullWidth
-                required
-                onChange={(e) => setUserIpAddress(e.target.value)}
+              <TextfieldGs
                 value={userIpAddress}
+                updateFunction={setUserIpAddress}
+                adornmentIcon={<NetworkPingRoundedIcon color="primary" />}
+                adornmentPosition="start"
+                id="connectIpAddress"
+                readOnly={false}
+                label="IP Address"
+                type="text"
+                tooltipText="IP Address of your Grandstream UCM63XX"
                 error={validateIPaddress(userIpAddress)}
                 helperText={
                   validateIPaddress(userIpAddress) ? "Invalid IP Address" : ""
                 }
-                id="connectIpAddress"
-                label="IP Address"
-                variant="outlined"
               />
             </Grid>
             <Grid item xs={12} sm={4} md={4}>
-              <TextField
-                fullWidth
-                required
-                onChange={(e) => setUserPort(e.target.value)}
+              <TextfieldGs
                 value={userPort}
+                updateFunction={setUserPort}
+                adornmentIcon={<DeviceHubRoundedIcon color="primary" />}
+                adornmentPosition="start"
+                id="connectPort"
+                readOnly={false}
+                label="Port"
+                type="text"
+                tooltipText="Port of your Grandstream UCM63XX"
                 error={userPort > 0 && userPort <= 65535 ? false : true}
                 helperText={
                   userPort > 0 && userPort <= 65535 ? null : "Invalid port"
                 }
-                id="connectPort"
-                label="Port"
-                variant="outlined"
               />
             </Grid>
             <Grid item xs={12} sm={6} md={6}>
-              <TextField
-                fullWidth
-                required
-                onChange={(e) => setUserName(e.target.value)}
+              <TextfieldGs
                 value={userName}
+                updateFunction={setUserName}
+                adornmentIcon={<PersonRoundedIcon color="primary" />}
+                adornmentPosition="start"
+                id="connectUsername"
+                readOnly={false}
+                label="Username"
+                type="text"
+                tooltipText="Your Grandstream UCM63XX API username"
                 error={userName.length > 0 ? false : true}
                 helperText={userName.length > 0 ? null : "Invalid username"}
-                label="Username"
-                id="connectUsername"
-                variant="outlined"
               />
             </Grid>
             <Grid item xs={12} sm={6} md={6}>
-              <TextField
-                fullWidth
-                required
-                onChange={(e) => setUserPassword(e.target.value)}
+              <PasswordGs
                 value={userPassword}
+                updateFunction={setUserPassword}
+                adornmentIcon={<LockRoundedIcon color="primary" />}
+                adornmentPosition="start"
+                id="connectPassword"
+                readOnly={false}
+                label="Password"
+                tooltipText="Your Grandstream UCM63XX API password"
                 error={userPassword.length > 0 ? false : true}
                 helperText={userPassword.length > 0 ? null : "Invalid password"}
-                id="connectPassword"
-                label="Password"
-                variant="outlined"
-                type="password"
               />
             </Grid>
             <Grid

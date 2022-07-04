@@ -19,6 +19,8 @@ const PasswordGs = ({
   size,
   label,
   tooltipText,
+  error,
+  helperText
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -31,6 +33,8 @@ const PasswordGs = ({
       type={showPassword ? "text" : "password"}
       size={size === "" ? "medium" : size}
       onChange={(e) => updateFunction(e.target.value)}
+      error={error}
+      helperText={helperText}
       InputProps={{
         readOnly: readOnly,
         startAdornment: (
