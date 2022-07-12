@@ -51,7 +51,7 @@ const NavigationBar = ({ setColorMode, colorMode, saveColorMode }) => {
             <MenuRoundedIcon />
           </IconButton>
           <Typography variant="h4" component="div" sx={{ flexGrow: 1 }} noWrap>
-            Grandstream UCM63XX API
+            Grandstream UCM63XX CDR Tool
           </Typography>
           {/* Light/Dark mode toggle button. Handles text change and icon change */}
           <Box
@@ -106,12 +106,17 @@ const NavigationBar = ({ setColorMode, colorMode, saveColorMode }) => {
       >
         <Toolbar>
           <Typography
-            variant="h4"
+            variant="display1"
             component="div"
-            sx={{ display: "flex", flexGrow: 1, justifyContent: "center" }}
+            sx={{
+              display: "flex",
+              flexGrow: 1,
+              justifyContent: "center",
+              fontSize: "1.5rem",
+            }}
             noWrap
           >
-            Grandstream API
+            Grandstream UCM63XX CDR Tool
           </Typography>
         </Toolbar>
         <div>

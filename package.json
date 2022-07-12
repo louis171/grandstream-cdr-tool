@@ -1,8 +1,8 @@
 {
   "name": "gs-electron-3",
-  "productName": "Grandstream UCM63XX API",
+  "productName": "Grandstream UCM63XX CDR Tool",
   "version": "1.0.0",
-  "description": "Grandstream UCM63XX API",
+  "description": "Grandstream UCM63XX CDR Tool",
   "main": ".webpack/main",
   "scripts": {
     "start": "electron-forge start",
@@ -26,7 +26,7 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "Grandstream-UCM63XX-API",
+            "name": "Grandstream-UCM63XX-CDR-Tool",
             "setupIcon": "./src/icon.ico",
             "icon": "./src/icon.ico",
             "loadingGif": "./src/loading.gif"

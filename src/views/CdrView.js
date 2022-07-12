@@ -18,6 +18,8 @@ import DispositionOptions from "../components/cdr/DispositionOptions";
 import RequestOptions from "../components/cdr/RequestOptions";
 import CdrSummary from "../components/cdr/CdrSummary";
 
+import { buildPdf } from "../functions/buildPdf";
+
 const CdrView = ({ userMethod, userIpAddress, userPort, gsCookie }) => {
   const navigate = useNavigate();
   // Loading state for dataGrid and summary
@@ -157,13 +159,20 @@ const CdrView = ({ userMethod, userIpAddress, userPort, gsCookie }) => {
         },
       })
       .then((res) => {
-        toast.success("Retrieved Extension Groups");
-        setGsExtGroup(res.data.response.extension_group);
-        setIsLoadingExtGroups(false);
+        console.log(res);
+        if (res.data.status === 0) {
+          toast.success("Retrieved Extension Groups");
+          setGsExtGroup(res.data.response.extension_group);
+          setIsLoadingExtGroups(false);
+        } else {
+          toast.error(
+            `${gsReturnCodeHandler(res.data.status)}. Code GS${res.data.status}`
+          );
+        }
       })
       .catch((err) => {
         console.log(err);
-        toast.error("Sorry an error occured. Code: 10");
+        toast.error(err.toString());
       });
   }, []);
 
@@ -194,7 +203,7 @@ const CdrView = ({ userMethod, userIpAddress, userPort, gsCookie }) => {
         },
       })
       .then((res) => {
-        console.log(res.data);
+        console.log(res);
         toast.success("CDR API sucessfully read");
         // Filters data to remove empty objects
         let data = fixGsData(res.data.cdr_root.filter((n) => n));

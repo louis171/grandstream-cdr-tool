@@ -21,6 +21,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 
 import { validateIPaddress } from "../functions/functions";
+import { gsReturnCodeHandler } from "../functions/gsReturnCodeHandler";
 
 import { ToastContainer, toast } from "react-toastify";
 import SelectGs from "../components/inputs/SelectGs";
@@ -89,8 +90,15 @@ const LoginView = (props) => {
           },
         })
         .then((res) => {
-          console.log(res);
-          loginGs(res.data.response.challenge);
+          if (res.data.status === 0) {
+            loginGs(res.data.response.challenge);
+          } else {
+            toast.error(
+              `${gsReturnCodeHandler(res.data.status)}. Code GS${
+                res.data.status
+              }`
+            );
+          }
         })
         .catch((err) => {
           console.log(err);
@@ -110,17 +118,22 @@ const LoginView = (props) => {
         },
       })
       .then((res) => {
-        toast.success("Successfully logged in");
-        setGsCookie(res.data.response.cookie);
+        console.log(res);
+        if (res.data.status === 0) {
+          toast.success("Successfully logged in");
+          setGsCookie(res.data.response.cookie);
+          setTimeout(() => {
+            navigate("/cdr");
+          }, 2000);
+        } else {
+          toast.error(
+            `${gsReturnCodeHandler(res.data.status)}. Code GS${res.data.status}`
+          );
+        }
       })
       .catch((err) => {
         console.log(err);
         toast.error("Sorry an error occured. Code: 01");
-      })
-      .finally(() => {
-        setTimeout(() => {
-          navigate("/cdr");
-        }, 2000);
       });
   };
 

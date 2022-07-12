@@ -46,6 +46,9 @@ export const columns = [
           {params.row.disposition === "FAILED" ? (
             <PhoneDisabledRoundedIcon sx={{ pr: ".5em" }} />
           ) : null}
+          {params.row.disposition === "BUSY" ? (
+            <PhoneDisabledRoundedIcon sx={{ pr: ".5em" }} />
+          ) : null}
           <Typography variant="body2" sx={{ border: "none" }}>
             {titleCase(params.row.disposition)}
           </Typography>
