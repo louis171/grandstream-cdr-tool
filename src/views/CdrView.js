@@ -18,7 +18,7 @@ import DispositionOptions from "../components/cdr/DispositionOptions";
 import RequestOptions from "../components/cdr/RequestOptions";
 import CdrSummary from "../components/cdr/CdrSummary";
 
-import { buildPdf } from "../functions/buildPdf";
+import { gsReturnCodeHandler } from "../functions/gsReturnCodeHandler";
 
 const CdrView = ({ userMethod, userIpAddress, userPort, gsCookie }) => {
   const navigate = useNavigate();
@@ -159,7 +159,6 @@ const CdrView = ({ userMethod, userIpAddress, userPort, gsCookie }) => {
         },
       })
       .then((res) => {
-        console.log(res);
         if (res.data.status === 0) {
           toast.success("Retrieved Extension Groups");
           setGsExtGroup(res.data.response.extension_group);
@@ -203,7 +202,6 @@ const CdrView = ({ userMethod, userIpAddress, userPort, gsCookie }) => {
         },
       })
       .then((res) => {
-        console.log(res);
         toast.success("CDR API sucessfully read");
         // Filters data to remove empty objects
         let data = fixGsData(res.data.cdr_root.filter((n) => n));

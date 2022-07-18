@@ -44,7 +44,7 @@ const CardAccounts = ({ listAccounts, isLoadingAccounts }) => {
                   bottom: 5,
                   ml: ".4em",
                   fontSize: ".5em",
-                  color: "rgba(0, 0, 0, 0.87)",
+                  color: "primary.text",
                 },
               }}
               variant="h4"

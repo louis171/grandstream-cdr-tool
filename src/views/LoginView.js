@@ -118,7 +118,6 @@ const LoginView = (props) => {
         },
       })
       .then((res) => {
-        console.log(res);
         if (res.data.status === 0) {
           toast.success("Successfully logged in");
           setGsCookie(res.data.response.cookie);
