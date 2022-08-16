@@ -7,15 +7,14 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import CssBaseline from "@mui/material/CssBaseline";
 
-import { ToastContainer, toast } from "react-toastify";
 import CardSysInfo from "../components/SystemInfo/CardSysInfo";
 import CardTrunks from "../components/SystemInfo/CardTrunks";
 import CardAccounts from "../components/SystemInfo/CardAccounts";
 import CardInbound from "../components/SystemInfo/CardInbound";
 
-const SystemInfoView = (props) => {
+const SystemInfoView = ({ userMethod, userIpAddress, userPort, gsCookie, showMessage }) => {
   const navigate = useNavigate();
-  const { userMethod, userIpAddress, userPort, gsCookie } = props;
+
   const [systemStatus, setSystemStatus] = useState({});
   const [systemGeneralStatus, setSystemGeneralStatus] = useState({});
   const [listVoipTrunk, setListVoipTrunk] = useState([]);
@@ -44,9 +43,9 @@ const SystemInfoView = (props) => {
         setIsLoadingSystemStatus(false);
       })
       .catch((err) => {
-        navigate("/login");
+        navigate("/");
         console.log(err);
-        toast.error("Sorry an error occured. Code: 02");
+        showMessage(`Error sending request: ${err.toString()}`, "error", 2000);
       });
 
     axios
@@ -61,9 +60,9 @@ const SystemInfoView = (props) => {
         setIsLoadingGeneralSystemStatus(false);
       })
       .catch((err) => {
-        navigate("/login");
+        navigate("/");
         console.log(err);
-        toast.error("Sorry an error occured. Code: 03");
+        showMessage(`Error sending request: ${err.toString()}`, "error", 2000);
       });
 
     axios
@@ -78,9 +77,9 @@ const SystemInfoView = (props) => {
         setIsLoadingVoipTrunk(false);
       })
       .catch((err) => {
-        navigate("/login");
+        navigate("/");
         console.log(err);
-        toast.error("Sorry an error occured. Code: 06");
+        showMessage(`Error sending request: ${err.toString()}`, "error", 2000);
       });
 
     axios
@@ -95,9 +94,9 @@ const SystemInfoView = (props) => {
         setIsLoadingAnalogTrunk(false);
       })
       .catch((err) => {
-        navigate("/login");
+        navigate("/");
         console.log(err);
-        toast.error("Sorry an error occured. Code: 06");
+        showMessage(`Error sending request: ${err.toString()}`, "error", 2000);
       });
 
     axios
@@ -116,7 +115,7 @@ const SystemInfoView = (props) => {
       .catch((err) => {
         navigate("/");
         console.log(err);
-        toast.error("Sorry an error occured. Code: 05");
+        showMessage(`Error sending request: ${err.toString()}`, "error", 2000);
       });
 
     axios
@@ -133,7 +132,7 @@ const SystemInfoView = (props) => {
       .catch((err) => {
         console.log(err);
         navigate("/");
-        toast.error("Sorry an error occured. Code: 06");
+        showMessage(`Error sending request: ${err.toString()}`, "error", 2000);
       });
   }, [gsCookie, userIpAddress, userMethod, userPort, navigate]);
 
@@ -144,13 +143,12 @@ const SystemInfoView = (props) => {
   return (
     <Container maxWidth="lg">
       <CssBaseline />
-      <ToastContainer autoClose={2000} />
       <Box
         sx={{
           display: "flex",
           flexDirection: "column",
           mb: 3,
-          width: "100%"
+          width: "100%",
         }}
       >
         <Grid container spacing={2}>

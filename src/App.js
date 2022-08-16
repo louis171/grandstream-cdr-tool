@@ -5,8 +5,10 @@ import SystemInfoView from "./views/SystemInfoView";
 import LoginView from "./views/LoginView";
 import CdrView from "./views/CdrView";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
-import AccountsView from "./views/AccountsView";
-import ExtensionEditView from "./views/ExtensionEditView";
+
+import Snackbar from "@mui/material/Snackbar";
+import Slide from "@mui/material/Slide";
+import Alert from "@mui/material/Alert";
 
 const App = () => {
   const [colorMode, setColorMode] = useState("light");
@@ -18,6 +20,26 @@ const App = () => {
   const [gsCookie, setGsCookie] = useState("");
 
   const [saveChecked, setSaveChecked] = useState(false);
+
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState("I'm a custom snackbar");
+  const [duration, setDuration] = useState(2000);
+  const [severity, setSeverity] =
+    useState("success"); /** error | warning | info */
+
+  const showMessage = (message, severity = "success", duration = 2000) => {
+    setMessage(message);
+    setSeverity(severity);
+    setDuration(duration);
+    setOpen(true);
+  };
+
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpen(false);
+  };
 
   const saveUserLogin = async (e) => {
     setSaveChecked(e.target.checked);
@@ -91,6 +113,7 @@ const App = () => {
                   setSaveChecked={setSaveChecked}
                   saveChecked={saveChecked}
                   saveUserLogin={saveUserLogin}
+                  showMessage={showMessage}
                 />
               }
             />
@@ -104,6 +127,7 @@ const App = () => {
                   userName={userName}
                   userPassword={userPassword}
                   gsCookie={gsCookie}
+                  showMessage={showMessage}
                 />
               }
             />
@@ -117,36 +141,25 @@ const App = () => {
                   userName={userName}
                   userPassword={userPassword}
                   gsCookie={gsCookie}
-                />
-              }
-            />
-            <Route
-              path="/accounts"
-              element={
-                <AccountsView
-                  userMethod={userMethod}
-                  userIpAddress={userIpAddress}
-                  userPort={userPort}
-                  userName={userName}
-                  userPassword={userPassword}
-                  gsCookie={gsCookie}
-                />
-              }
-            />
-            <Route
-              path="/extension/:extensionId"
-              element={
-                <ExtensionEditView
-                  userMethod={userMethod}
-                  userIpAddress={userIpAddress}
-                  userPort={userPort}
-                  userName={userName}
-                  userPassword={userPassword}
-                  gsCookie={gsCookie}
+                  showMessage={showMessage}
                 />
               }
             />
           </Routes>
+          <Snackbar
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "right",
+            }}
+            autoHideDuration={duration}
+            open={open}
+            onClose={handleClose}
+            TransitionComponent={Slide}
+          >
+            <Alert variant="filled" onClose={handleClose} severity={severity}>
+              {message}
+            </Alert>
+          </Snackbar>
         </Layout>
       </ThemeProvider>
     </HashRouter>

@@ -8,9 +8,6 @@ import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import CssBaseline from "@mui/material/CssBaseline";
 
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-
 import { secondsToHHMMSS } from "../functions/functions";
 import CallTypeOptions from "../components/cdr/CallTypeOptions";
 import CDRDataGrid from "../components/CDRDataGrid";
@@ -20,7 +17,7 @@ import CdrSummary from "../components/cdr/CdrSummary";
 
 import { gsReturnCodeHandler } from "../functions/gsReturnCodeHandler";
 
-const CdrView = ({ userMethod, userIpAddress, userPort, gsCookie }) => {
+const CdrView = ({ userMethod, userIpAddress, userPort, gsCookie, showMessage }) => {
   const navigate = useNavigate();
   // Loading state for dataGrid and summary
   const [isLoading, setIsLoading] = useState(true);
@@ -160,18 +157,16 @@ const CdrView = ({ userMethod, userIpAddress, userPort, gsCookie }) => {
       })
       .then((res) => {
         if (res.data.status === 0) {
-          toast.success("Retrieved Extension Groups");
+          showMessage("Retrieved Extension Groups")
           setGsExtGroup(res.data.response.extension_group);
           setIsLoadingExtGroups(false);
         } else {
-          toast.error(
-            `${gsReturnCodeHandler(res.data.status)}. Code GS${res.data.status}`
-          );
+          showMessage(`Error getting extension groups: ${gsReturnCodeHandler(res.data.status)}`, "error", 2000)
         }
       })
       .catch((err) => {
         console.log(err);
-        toast.error(err.toString());
+        showMessage(`Error sending request: ${err.toString()}`, "error", 2000);
       });
   }, []);
 
@@ -202,7 +197,7 @@ const CdrView = ({ userMethod, userIpAddress, userPort, gsCookie }) => {
         },
       })
       .then((res) => {
-        toast.success("CDR API sucessfully read");
+        showMessage("CDR API sucessfully read")
         // Filters data to remove empty objects
         let data = fixGsData(res.data.cdr_root.filter((n) => n));
         setGsCdrApi(data);
@@ -210,7 +205,7 @@ const CdrView = ({ userMethod, userIpAddress, userPort, gsCookie }) => {
       })
       .catch((err) => {
         console.log(err);
-        toast.error("Sorry an error occured. Code: 07");
+        showMessage(`Error sending request: ${err.toString()}`, "error", 2000);
         navigate("/");
       });
   };
@@ -294,7 +289,6 @@ const CdrView = ({ userMethod, userIpAddress, userPort, gsCookie }) => {
   return (
     <Container component="main" maxWidth="lg">
       <CssBaseline />
-      <ToastContainer autoClose={2000} />
       <RequestOptions
         setUserStartDate={setUserStartDate}
         userStartDate={userStartDate}

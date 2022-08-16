@@ -23,7 +23,6 @@ import Checkbox from "@mui/material/Checkbox";
 import { validateIPaddress } from "../functions/functions";
 import { gsReturnCodeHandler } from "../functions/gsReturnCodeHandler";
 
-import { ToastContainer, toast } from "react-toastify";
 import SelectGs from "../components/inputs/SelectGs";
 
 import HttpsIcon from "@mui/icons-material/Https";
@@ -50,6 +49,7 @@ const LoginView = (props) => {
     saveChecked,
     setSaveChecked,
     saveUserLogin,
+    showMessage,
   } = props;
 
   const navigate = useNavigate();
@@ -79,7 +79,7 @@ const LoginView = (props) => {
   const challengeGs = async (e) => {
     e.preventDefault();
     if (!userIpAddress || !userPort || !userName || !userPassword) {
-      toast.error("Please enter your login details");
+      showMessage("Please enter your login details", "warning", 2000);
     } else {
       await axios
         .post(`${userMethod}://${userIpAddress}:${userPort}/api`, {
@@ -93,16 +93,18 @@ const LoginView = (props) => {
           if (res.data.status === 0) {
             loginGs(res.data.response.challenge);
           } else {
-            toast.error(
-              `${gsReturnCodeHandler(res.data.status)}. Code GS${
-                res.data.status
-              }`
+            showMessage(
+              `Error getting challenge: ${gsReturnCodeHandler(res.data.status)}`
             );
           }
         })
         .catch((err) => {
           console.log(err);
-          toast.error("Sorry an error occured. Code: 00");
+          showMessage(
+            `Error sending request: ${err.toString()}`,
+            "error",
+            2000
+          );
         });
     }
   };
@@ -119,27 +121,26 @@ const LoginView = (props) => {
       })
       .then((res) => {
         if (res.data.status === 0) {
-          toast.success("Successfully logged in");
+          showMessage("Successfully logged in", "success", 2000);
           setGsCookie(res.data.response.cookie);
-          setTimeout(() => {
-            navigate("/cdr");
-          }, 2000);
+          navigate("/cdr");
         } else {
-          toast.error(
-            `${gsReturnCodeHandler(res.data.status)}. Code GS${res.data.status}`
+          showMessage(
+            `Error logging in: ${gsReturnCodeHandler(res.data.status)}`,
+            "error",
+            2000
           );
         }
       })
       .catch((err) => {
         console.log(err);
-        toast.error("Sorry an error occured. Code: 01");
+        showMessage(`Error sending request: ${err.toString()}`, "error", 2000);
       });
   };
 
   return (
     <Container component="main" maxWidth="md">
       <CssBaseline />
-      <ToastContainer autoClose={2000} />
       <Box
         sx={{
           marginTop: 8,

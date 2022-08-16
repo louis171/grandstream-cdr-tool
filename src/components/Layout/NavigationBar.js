@@ -12,6 +12,7 @@ import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import ApiRoundedIcon from "@mui/icons-material/ApiRounded";
 import InfoRoundedIcon from "@mui/icons-material/InfoRounded";
 import VpnKeyRoundedIcon from "@mui/icons-material/VpnKeyRounded";
+import LocalPhoneRoundedIcon from "@mui/icons-material/LocalPhoneRounded";
 import Box from "@mui/material/Box";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
@@ -166,19 +167,6 @@ const NavigationBar = ({ setColorMode, colorMode, saveColorMode }) => {
                 </Typography>
               </ListItem>
             </Link>
-            {/* <Link
-              sx={{ color: "rgba(0, 0, 0, 0.87)", textDecoration: "none" }}
-              onClick={handleMenuClick}
-              component={RouterLink}
-              to="/accounts"
-            >
-              <ListItem button>
-                <ListItemIcon>
-                  <LocalPhoneRoundedIcon />
-                </ListItemIcon>
-                <ListItemText primary="Accounts" />
-              </ListItem>
-            </Link> */}
           </List>
         </div>
       </Drawer>
