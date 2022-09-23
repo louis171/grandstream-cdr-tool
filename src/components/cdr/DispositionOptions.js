@@ -38,6 +38,10 @@ const DispositionOptions = (props) => {
         label="No Answer"
       />
       <FormControlLabel
+        control={<Checkbox onChange={() => handleChange("BUSY")} />}
+        label="Busy"
+      />
+      <FormControlLabel
         control={<Checkbox onChange={() => handleChange("FAILED")} />}
         label="Failed"
       />

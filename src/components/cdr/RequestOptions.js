@@ -14,6 +14,7 @@ import SelectGs from "../inputs/SelectGs";
 import PhoneForwardedRoundedIcon from "@mui/icons-material/PhoneForwardedRounded";
 import PhoneCallbackRoundedIcon from "@mui/icons-material/PhoneCallbackRounded";
 import GroupsRoundedIcon from "@mui/icons-material/GroupsRounded";
+import PhoneRoundedIcon from "@mui/icons-material/PhoneRounded";
 
 const RequestOptions = ({
   setUserStartDate,
@@ -28,6 +29,12 @@ const RequestOptions = ({
   setUserCallee,
   userCallee,
   userCaller,
+  userAnsweredBy,
+  setUserAnsweredBy,
+  userMinDuration,
+  setUserMinDuration,
+  userMaxDuration,
+  setUserMaxDuration,
   setUserExtGroup,
   userExtGroup,
   gsExtGroup,
@@ -35,11 +42,7 @@ const RequestOptions = ({
   cdrApiRead,
 }) => {
   return (
-    <Grid
-      container
-      spacing={3}
-      p="1em"
-    >
+    <Grid container spacing={2} p="1em">
       <Grid
         item
         sm={12}
@@ -53,7 +56,12 @@ const RequestOptions = ({
             onChange={(e) => setUserStartDate(e)}
             value={userStartDate}
             renderInput={(params) => (
-              <TextField {...params} sx={{ mr: "1em" }} size="small" />
+              <TextField
+                {...params}
+                sx={{ marginX: (theme) => theme.spacing(1) }}
+                size="small"
+                fullWidth
+              />
             )}
           />
           <TimePicker
@@ -61,7 +69,12 @@ const RequestOptions = ({
             onChange={(e) => setUserStartTime(e)}
             value={userStartTime}
             renderInput={(params) => (
-              <TextField {...params} sx={{ mr: "1em" }} size="small" />
+              <TextField
+                {...params}
+                sx={{ marginX: (theme) => theme.spacing(1) }}
+                size="small"
+                fullWidth
+              />
             )}
           />
           <DatePicker
@@ -69,7 +82,12 @@ const RequestOptions = ({
             onChange={(e) => setUserEndDate(e)}
             value={userEndDate}
             renderInput={(params) => (
-              <TextField {...params} sx={{ mr: "1em" }} size="small" />
+              <TextField
+                {...params}
+                sx={{ marginX: (theme) => theme.spacing(1) }}
+                size="small"
+                fullWidth
+              />
             )}
           />
           <TimePicker
@@ -77,7 +95,12 @@ const RequestOptions = ({
             onChange={(e) => setUserEndTime(e)}
             value={userEndTime}
             renderInput={(params) => (
-              <TextField {...params} sx={{ mr: "1em" }} size="small" />
+              <TextField
+                {...params}
+                sx={{ marginX: (theme) => theme.spacing(1) }}
+                size="small"
+                fullWidth
+              />
             )}
           />
         </LuxonAdapter>
@@ -90,11 +113,14 @@ const RequestOptions = ({
         sx={{ display: "flex", justifyContent: "center" }}
       >
         <TextfieldGs
-          sx={{ marginX: ".5em" }}
+          sx={{ marginX: (theme) => theme.spacing(1) }}
           value={userCaller}
           updateFunction={setUserCaller}
           adornmentIcon={
-            <PhoneForwardedRoundedIcon color="primary" sx={{ mr: ".5em" }} />
+            <PhoneForwardedRoundedIcon
+              color="primary"
+              sx={{ mr: (theme) => theme.spacing(1) }}
+            />
           }
           adornmentPosition="start"
           id="cdrCaller"
@@ -104,33 +130,44 @@ const RequestOptions = ({
           tooltipText={
             <span>
               Filters a specific Caller Number or a range of Caller Numbers via
-              patterns. Supported characters are:
+              Comma separated extensions, ranges of extensions, or regular
+              expressions. For example:
               <br />
               <ul>
                 <li>
-                  <b>.</b> - Matches zero or more of any character. Should only
-                  be attached to the end of a pattern.
+                  <b>02079460000-02079460003,02079460005</b> - Matches
+                  02079460000, 02079460001, 02079460002, 02079460003,
+                  02079460005.
                 </li>
                 <li>
-                  <b>X</b> - Matches any number from 0-9.
+                  <b>07@</b> - Matches any UK mobile number.
                 </li>
               </ul>
+              Patterns containing one or more wildcards ('@' or '_') will match
+              as a regular expression, and treat '-' as a literal hyphen rather
+              than a range signifier.
               <br />
-              Caller numbers can also be entered as lists separated with commas
               <br />
-              e.g. 200,201,203
+              The '@' wildcard matches any number of characters (including
+              zero), while '_' matches any single character. Otherwise, patterns
+              containing a single hyphen will be matching a range of numerical
+              extensions, with non-numerical characters ignored, while patterns
+              containing multiple hyphens will be ignored. (The pattern "0-0"
+              will match all non-numerical and empty strings).
             </span>
           }
         />
-
         <SelectGs
-          sx={{ marginX: ".5em" }}
+          sx={{ marginX: (theme) => theme.spacing(1) }}
           size="small"
           name="extGroupSelect"
           value={userExtGroup}
           updateFunction={setUserExtGroup}
           adornmentIcon={
-            <GroupsRoundedIcon color="primary" sx={{ mr: ".5em" }} />
+            <GroupsRoundedIcon
+              color="primary"
+              sx={{ mr: (theme) => theme.spacing(1) }}
+            />
           }
           adornmentText=""
           label="Extension Group"
@@ -143,31 +180,161 @@ const RequestOptions = ({
           tooltipText="Extension Group"
           canClear={true}
         />
-
         <TextfieldGs
-          sx={{ marginX: ".5em" }}
+          sx={{ marginX: (theme) => theme.spacing(1) }}
           value={userCallee}
           updateFunction={setUserCallee}
           adornmentIcon={
-            <PhoneCallbackRoundedIcon color="primary" sx={{ mr: ".5em" }} />
+            <PhoneCallbackRoundedIcon
+              color="primary"
+              sx={{ mr: (theme) => theme.spacing(1) }}
+            />
           }
           adornmentPosition="start"
           id="cdrCallee"
           readOnly={false}
           label="Callee"
           size="small"
+          disabled={userAnsweredBy.length > 0 ? true : false}
           tooltipText={
             <span>
               Filters a specific Callee Number or a range of Callee Numbers via
-              patterns. Supported characters are:
+              Comma separated extensions, ranges of extensions, or regular
+              expressions. For example:
               <br />
               <ul>
                 <li>
-                  <b>.</b> - Matches zero or more of any character. Should only
-                  be attached to the end of a pattern.
+                  <b>5300,5302-5304</b> - Matches extensions 5300, 5302, 5303,
+                  5304.
                 </li>
                 <li>
-                  <b>X</b> - Matches any number from 0-9.
+                  <b>_4@</b> - Matches any extension containing 4 as the second
+                  digit.
+                </li>
+              </ul>
+              Patterns containing one or more wildcards ('@' or '_') will match
+              as a regular expression, and treat '-' as a literal hyphen rather
+              than a range signifier.
+              <br />
+              <br />
+              The '@' wildcard matches any number of characters (including
+              zero), while '_' matches any single character. Otherwise, patterns
+              containing a single hyphen will be matching a range of numerical
+              extensions, with non-numerical characters ignored, while patterns
+              containing multiple hyphens will be ignored. (The pattern "0-0"
+              will match all non-numerical and empty strings).
+            </span>
+          }
+        />
+        <TextfieldGs
+          sx={{ marginX: (theme) => theme.spacing(1) }}
+          value={userAnsweredBy}
+          updateFunction={setUserAnsweredBy}
+          adornmentIcon={
+            <PhoneRoundedIcon
+              color="primary"
+              sx={{ mr: (theme) => theme.spacing(1) }}
+            />
+          }
+          adornmentPosition="start"
+          id="cdrAnsweredby"
+          readOnly={false}
+          label="Answered by"
+          size="small"
+          disabled={userCallee.length > 0 ? true : false}
+          tooltipText={
+            <span>
+              Filters a specific Callee Number or a range of Callee Numbers via
+              Comma separated extensions, ranges of extensions, or regular
+              expressions. For example:
+              <br />
+              <ul>
+                <li>
+                  <b>5300,5302-5304</b> - Matches extensions 5300, 5302, 5303,
+                  5304.
+                </li>
+                <li>
+                  <b>_4@</b> - Matches any extension containing 4 as the second
+                  digit.
+                </li>
+              </ul>
+              Patterns containing one or more wildcards ('@' or '_') will match
+              as a regular expression, and treat '-' as a literal hyphen rather
+              than a range signifier.
+              <br />
+              <br />
+              The '@' wildcard matches any number of characters (including
+              zero), while '_' matches any single character. Otherwise, patterns
+              containing a single hyphen will be matching a range of numerical
+              extensions, with non-numerical characters ignored, while patterns
+              containing multiple hyphens will be ignored. (The pattern "0-0"
+              will match all non-numerical and empty strings).
+            </span>
+          }
+        />
+      </Grid>
+      <Grid
+        item
+        sm={12}
+        md={12}
+        lg={12}
+        sx={{ display: "flex", justifyContent: "center" }}
+      >
+        <TextfieldGs
+          sx={{ marginX: (theme) => theme.spacing(1) }}
+          value={userMinDuration}
+          updateFunction={setUserMinDuration}
+          adornmentIcon={
+            <PhoneCallbackRoundedIcon
+              color="primary"
+              sx={{ mr: (theme) => theme.spacing(1) }}
+            />
+          }
+          adornmentPosition="start"
+          id="cdrMinDuration"
+          readOnly={false}
+          label="Min Duration"
+          size="small"
+          type="number"
+          tooltipText={
+            <span>
+              Filters based in a minimum Billable duration in seconds. For
+              example:
+              <br />
+              <ul>
+                <li>
+                  <b>10</b> - Only returns CDR entries with a Billable Duration
+                  of 10 seconds or above.
+                </li>
+              </ul>
+            </span>
+          }
+        />
+        <TextfieldGs
+          sx={{ marginX: (theme) => theme.spacing(1) }}
+          value={userMaxDuration}
+          updateFunction={setUserMaxDuration}
+          adornmentIcon={
+            <PhoneCallbackRoundedIcon
+              color="primary"
+              sx={{ mr: (theme) => theme.spacing(1) }}
+            />
+          }
+          adornmentPosition="start"
+          id="cdrMaxDuration"
+          readOnly={false}
+          label="Max Duration"
+          size="small"
+          type="number"
+          tooltipText={
+            <span>
+              Filters based in a maximum Billable duration in seconds. For
+              example:
+              <br />
+              <ul>
+                <li>
+                  <b>10</b> - Only returns CDR entries with a Billable Duration
+                  of 10 seconds or less.
                 </li>
               </ul>
             </span>
@@ -181,7 +348,12 @@ const RequestOptions = ({
         lg={12}
         sx={{ display: "flex", justifyContent: "center" }}
       >
-        <Button fullWidth variant="contained" type="button" onClick={cdrApiRead}>
+        <Button
+          fullWidth
+          variant="contained"
+          type="button"
+          onClick={cdrApiRead}
+        >
           Read
         </Button>
       </Grid>

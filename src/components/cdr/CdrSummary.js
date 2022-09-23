@@ -9,27 +9,67 @@ import { Skeleton } from "@mui/material";
 import PictureAsPdfRoundedIcon from "@mui/icons-material/PictureAsPdfRounded";
 
 import { secondsToHHMMSS } from "../../functions/functions";
+import requestOptionsUtil from "../../util/RequestOptionsUtil";
 
 const CdrSummary = ({
   filteredGsCdrApi,
   createPdf,
-  userCallerCreate,
+  userExtGroup,
+  userCaller,
+  userCallee,
+  userAnsweredBy,
 }) => {
   return (
-    <Grid container spacing={2} sx={{ mt: ".5em" }}>
+    <Grid container spacing={2} sx={{ marginY: (theme) => theme.spacing(2) }}>
       <Grid item xs={12} sm={12} md={12} lg={6}>
         <Card sx={{ height: "100%" }}>
           <CardContent>
             <Grid container spacing={3} sx={{ justifyContent: "center" }}>
               <Grid sx={{ width: "100%" }} item>
                 <Typography
-                  noWrap
                   sx={{ width: "100%", textAlign: "center" }}
                   color="primary.main"
                   gutterBottom
                   variant="h5"
                 >
-                  Summary of {userCallerCreate()}
+                  CDR Summary
+                </Typography>
+              </Grid>
+            </Grid>
+            <Grid container spacing={2} sx={{ justifyContent: "start" }}>
+              <Grid item sx={{ width: "50%" }}>
+                <Typography variant="body1">Caller</Typography>
+              </Grid>
+              <Grid item sx={{ width: "50%" }}>
+                <Typography variant="body1">
+                  {requestOptionsUtil.userCallerCreate(
+                    userExtGroup,
+                    userCaller,
+                    true
+                  )}
+                </Typography>
+              </Grid>
+            </Grid>
+            <Grid container spacing={2} sx={{ justifyContent: "start" }}>
+              <Grid item sx={{ width: "50%" }}>
+                <Typography variant="body1">Callee</Typography>
+              </Grid>
+              <Grid item sx={{ width: "50%" }}>
+                <Typography variant="body1">
+                  {requestOptionsUtil.userCalleeCreate(userCallee, true)}
+                </Typography>
+              </Grid>
+            </Grid>
+            <Grid container spacing={2} sx={{ justifyContent: "start" }}>
+              <Grid item sx={{ width: "50%" }}>
+                <Typography variant="body1">Answered By</Typography>
+              </Grid>
+              <Grid item sx={{ width: "50%" }}>
+                <Typography variant="body1">
+                  {requestOptionsUtil.userAnsweredByCreate(
+                    userAnsweredBy,
+                    true
+                  )}
                 </Typography>
               </Grid>
             </Grid>

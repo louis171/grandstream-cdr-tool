@@ -2,6 +2,7 @@ import React from "react";
 import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
 import Tooltip from "@mui/material/Tooltip";
+import { bgcolor, color } from "@mui/system";
 
 const TextfieldGs = ({
   value,
@@ -17,11 +18,17 @@ const TextfieldGs = ({
   label,
   tooltipText,
   error,
-  helperText
+  helperText,
+  disabled,
 }) => {
   return (
     <TextField
-      sx={sx}
+      sx={[
+        { ...sx },
+        disabled && {
+          cursor: "not-allowed",
+        },
+      ]}
       value={value}
       error={error}
       helperText={helperText}
@@ -36,6 +43,7 @@ const TextfieldGs = ({
               position={
                 adornmentPosition === null ? "start" : adornmentPosition
               }
+              sx={{ cursor: "default" }}
             >
               {adornmentIcon}
               {adornmentText === "" ? null : adornmentText}
@@ -47,6 +55,7 @@ const TextfieldGs = ({
       label={label}
       id={id}
       variant="outlined"
+      disabled={disabled}
     />
   );
 };

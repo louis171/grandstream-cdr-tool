@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import CssBaseline from "@mui/material/CssBaseline";
+import Box from "@mui/material/Box";
 
 import { secondsToHHMMSS } from "../functions/functions";
 import CallTypeOptions from "../components/cdr/CallTypeOptions";
@@ -16,14 +17,27 @@ import RequestOptions from "../components/cdr/RequestOptions";
 import CdrSummary from "../components/cdr/CdrSummary";
 
 import { gsReturnCodeHandler } from "../functions/gsReturnCodeHandler";
+import requestOptionsUtil from "../util/RequestOptionsUtil";
 
-const CdrView = ({ userMethod, userIpAddress, userPort, gsCookie, showMessage }) => {
+import { dummyTableData } from "../DUMMY_DATA";
+import PaginationCdrTable from "../components/cdr/table/PaginationCdrTable";
+import buildPdf from "../functions/buildPdf";
+
+const CdrView = ({
+  userMethod,
+  userIpAddress,
+  userPort,
+  gsCookie,
+  showMessage,
+}) => {
   const navigate = useNavigate();
   // Loading state for dataGrid and summary
   const [isLoading, setIsLoading] = useState(true);
   // States for initial cdr data and filtered data is user presses filter checkboxes
   const [gsCdrApi, setGsCdrApi] = useState([]);
+  const [gsCdrTable, setGsCdrTable] = useState([]);
   const [filteredGsCdrApi, setFilteredGsCdrApi] = useState([]);
+  const [filteredGsCdrTable, setFilteredGsCdrTable] = useState([]);
   // Initialises with extension groups pulled from phone system
   const [gsExtGroup, setGsExtGroup] = useState([]);
   // Loading state for extension groups
@@ -47,103 +61,17 @@ const CdrView = ({ userMethod, userIpAddress, userPort, gsCookie, showMessage })
   const [userCaller, setUserCaller] = useState("");
   // State for Callee field of CDR request
   const [userCallee, setUserCallee] = useState("");
+  // State for answered by field in CDR requeset
+  const [userAnsweredBy, setUserAnsweredBy] = useState("");
+  const [userMinDuration, setUserMinDuration] = useState("");
+  const [userMaxDuration, setUserMaxDuration] = useState("");
+
   // State for selected user extension group
   const [userExtGroup, setUserExtGroup] = useState("");
 
   // CDR data filter arrays
   const [callOptionsFilters, setCallOptionsFilters] = useState([]);
   const [dispositionFilters, setDispositionFilters] = useState([]);
-
-  const buildPdf = () => {
-    // Takes filtered cdr data and maps it to a new array. Removing not required data
-    const rows = filteredGsCdrApi.map((obj) => {
-      return {
-        src: obj.src,
-        destination: obj.dst,
-        start: obj.start,
-        end: obj.end,
-        duration: obj.billsec,
-      };
-    });
-
-    // Columns used by AutoTable
-    const columns = [
-      { title: "Source", dataKey: "src" },
-      { title: "Destination", dataKey: "destination" },
-      { title: "Start", dataKey: "start" },
-      { title: "End", dataKey: "end" },
-      { title: "Duration", dataKey: "duration" },
-    ];
-
-    var doc = new jsPDF("p", "mm");
-    doc.setFontSize(12);
-    doc.setTextColor("#161C22");
-    // Summary of 200,201
-    doc.text(`Summary of ${userCallerCreate()}`, 12.7, 12.7, {
-      maxWidth: 159.2,
-    });
-    // Sat Jun 04 2022 09:00:00 - Mon Jul 04 2022 17:00:00
-    doc.text(
-      `${userStartDate.toDateString()} ${new Date(
-        userStartTime
-      ).toLocaleTimeString("en-GB")} - ${new Date(
-        userEndDate
-      ).toDateString()} ${new Date(userEndTime).toLocaleTimeString("en-GB")}`,
-      12.7,
-      22.7,
-      { maxWidth: 159.2 }
-    );
-    // Total calls: 28
-    doc.text(`Total calls: ${filteredGsCdrApi.length}`, 12.7, 32.7, {
-      maxWidth: 159.2,
-    });
-    // Total Billable: 3:27:43
-    doc.text(
-      `Total Billable: ${secondsToHHMMSS(
-        filteredGsCdrApi.reduce(
-          (partialSum, a) => partialSum + Number(a.billsec),
-          0
-        )
-      )}`,
-      12.7,
-      42.7,
-      { maxWidth: 159.2 }
-    );
-    doc.autoTable(columns, rows, {
-      // First page margin top in mm
-      startY: 50,
-      margin: { horizontal: 10 },
-      styles: { overflow: "linebreak" },
-      bodyStyles: { valign: "top" },
-      columnStyles: { email: { cellWidth: "wrap" } },
-      theme: "striped",
-      showHead: "everyPage",
-      didDrawPage: function (data) {
-        // Any additional pages will use this margin top
-        data.settings.margin.top = 25;
-
-        // Footer page numbering
-        let str = "Page " + doc.internal.getNumberOfPages();
-        doc.setFontSize(10);
-
-        // jsPDF 1.4+ uses getWidth, <1.4 uses .width
-        let pageSize = doc.internal.pageSize;
-        let pageHeight = pageSize.height
-          ? pageSize.height
-          : pageSize.getHeight();
-        doc.text(str, data.settings.margin.left, pageHeight - 10);
-      },
-    });
-    // Build pdf file name e.g.
-    // 200,201,202,205,203,204 - Sat Jun 04 2022 09_00_00 - Mon Jul 04 2022 17_00_00.pdf
-    doc.save(
-      `${userCallerCreate()} - ${userStartDate.toDateString()} ${new Date(
-        userStartTime
-      ).toLocaleTimeString("en-GB")} - ${new Date(
-        userEndDate
-      ).toDateString()} ${new Date(userEndTime).toLocaleTimeString("en-GB")}`
-    );
-  };
 
   useEffect(() => {
     axios
@@ -157,11 +85,17 @@ const CdrView = ({ userMethod, userIpAddress, userPort, gsCookie, showMessage })
       })
       .then((res) => {
         if (res.data.status === 0) {
-          showMessage("Retrieved Extension Groups")
+          showMessage("Retrieved Extension Groups");
           setGsExtGroup(res.data.response.extension_group);
           setIsLoadingExtGroups(false);
         } else {
-          showMessage(`Error getting extension groups: ${gsReturnCodeHandler(res.data.status)}`, "error", 2000)
+          showMessage(
+            `Error getting extension groups: ${gsReturnCodeHandler(
+              res.data.status
+            )}`,
+            "error",
+            2000
+          );
         }
       })
       .catch((err) => {
@@ -192,14 +126,20 @@ const CdrView = ({ userMethod, userIpAddress, userPort, gsCookie, showMessage })
             .slice(0, -14)}T${new Date(userEndTime)
             .toTimeString()
             .slice(0, 5)}`,
-          caller: userCallerCreate(),
-          callee: userCallee === undefined ? "" : userCallee,
+          caller: requestOptionsUtil.userCallerCreate(userExtGroup, userCaller),
+          callee: requestOptionsUtil.userCalleeCreate(userCallee),
+          AnsweredBy: requestOptionsUtil.userAnsweredByCreate(userAnsweredBy),
+          minDur: userMinDuration,
+          maxDur: userMaxDuration,
         },
       })
       .then((res) => {
-        showMessage("CDR API sucessfully read")
-        // Filters data to remove empty objects
-        let data = fixGsData(res.data.cdr_root.filter((n) => n));
+        //console.log(res.data);
+        showMessage("CDR API sucessfully read");
+        // let tableData = fixTableData(res.data.cdr_root.filter((n) => n)); // Filters data to remove empty objects
+        // setGsCdrTable(tableData);
+
+        let data = fixGsData(res.data.cdr_root.filter((n) => n)); // Filters data to remove empty objects
         setGsCdrApi(data);
         setIsLoading(false);
       })
@@ -208,26 +148,27 @@ const CdrView = ({ userMethod, userIpAddress, userPort, gsCookie, showMessage })
         showMessage(`Error sending request: ${err.toString()}`, "error", 2000);
         navigate("/");
       });
+
+    // axios
+    //   .post(`${userMethod}://${userIpAddress}:${userPort}/api`, {
+    //     request: {
+    //       action: "recapi",
+    //       cookie: gsCookie,
+    //       filedir: "monitor",
+    //     },
+    //   })
+    //   .then((res) => {
+    //     console.log(res);
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //   });
   };
 
-  // Creates string used in CdrSummary and PDF
-  const userCallerCreate = () => {
-    // If there is a extension group selected
-    if (userExtGroup.length > 0) {
-      // Find index of any extension that have been typed into the Caller textfield
-      let index = userExtGroup.indexOf(userCaller);
-      // If the extension isn't present in the extension group then add it
-      if (index === -1) {
-        return userExtGroup.concat(",", userCaller.trim().replace(" ", ""));
-      } else {
-        // else just use the extension group
-        return userExtGroup;
-      }
-      // If an extension group hasnt been selected then just use the Caller textfield
-    } else {
-      return userCaller.trim();
-    }
-  };
+  // useEffect(() => {
+  //   let tableData = fixTableData(dummyTableData);
+  //   setGsCdrTable(tableData);
+  // }, []);
 
   const fixGsData = (data) => {
     // Break returned CDR array into objects
@@ -246,7 +187,7 @@ const CdrView = ({ userMethod, userIpAddress, userPort, gsCookie, showMessage })
         const index = data.indexOf(row);
         // If the index is greater than -1. e.i. the data is present
         if (index > -1) {
-          // Removes 1 element in the array from the position. i.e. deletes the incorrect object
+          // Removes 1 element in the array from the index position. i.e. deletes the incorrect object
           data.splice(index, 1);
         }
       }
@@ -286,28 +227,108 @@ const CdrView = ({ userMethod, userIpAddress, userPort, gsCookie, showMessage })
     setFilteredGsCdrApi(data);
   }, [dispositionFilters, callOptionsFilters, gsCdrApi]);
 
+  const fixTableData = (data) => {
+    // break data into objects
+    data.forEach((row) => {
+      // Removes empty cdr object that is often returned from UCM63XX PBXs
+      // e.g. cdr: ""
+      delete row["cdr"];
+      // Creates new empty array
+      let arr = [];
+      // Iterates through the keys of the object
+      for (const key in row) {
+        // .hasOwnProperty returns a boolean indicating whether the object has the specified property
+        // .call allows another object to be substituted (in this case the row) where we look for the keys
+        if (Object.hasOwnProperty.call(row, key)) {
+          const element = row[key];
+          // checks the type of the returned element looking for objects
+          if (typeof element === "object") {
+            // if the returned element is an object then add to the array
+            arr.push(element);
+          }
+        }
+      }
+      // If the array has any content then add back to the original data
+      if (arr.length > 0) {
+        data = [...data, arr];
+      } else {
+        data = [...data, [row]];
+      }
+      // find index of the row being processed
+      const index = data.indexOf(row);
+
+      // If the indexed row exists
+      if (index > -1) {
+        // Removes 1 element in the array from the index position
+        // i.e. remove the old object from the data
+        data.splice(index, 1);
+      }
+    });
+    return data;
+  };
+
+  useEffect(() => {
+    // Checks if there are NO filter options selected. Sets filtered data to initial cdr data
+    if (dispositionFilters.length === 0 && callOptionsFilters.length === 0) {
+      setFilteredGsCdrTable(gsCdrTable);
+    }
+
+    // Ternary for choosing which data to filter further
+    // If the lengths of the array differ then use the filtered data
+    let data =
+      filteredGsCdrTable.length !== gsCdrTable.length
+        ? [...gsCdrTable]
+        : [...filteredGsCdrTable];
+
+    if (dispositionFilters.length > 0) {
+      data = data.filter((row) => {
+        if (dispositionFilters.includes(row[0].disposition)) {
+        } else if (row.length > 1) {
+          row.forEach((subRow) => {
+            if (dispositionFilters.includes(subRow.disposition)) {
+              console.log(subRow.src);
+            }
+          });
+        }
+        return dispositionFilters.includes(row[0].disposition);
+      });
+    }
+    setFilteredGsCdrTable(data);
+  }, [dispositionFilters, callOptionsFilters, gsCdrTable]);
+
   return (
     <Container component="main" maxWidth="lg">
       <CssBaseline />
-      <RequestOptions
-        setUserStartDate={setUserStartDate}
-        userStartDate={userStartDate}
-        setUserEndDate={setUserEndDate}
-        userEndDate={userEndDate}
-        setUserStartTime={setUserStartTime}
-        userStartTime={userStartTime}
-        setUserEndTime={setUserEndTime}
-        userEndTime={userEndTime}
-        setUserCaller={setUserCaller}
-        userCaller={userCaller}
-        setUserCallee={setUserCallee}
-        userCallee={userCallee}
-        gsExtGroup={gsExtGroup}
-        setUserExtGroup={setUserExtGroup}
-        userExtGroup={userExtGroup}
-        isLoadingExtGroups={isLoadingExtGroups}
-        cdrApiRead={cdrApiRead}
-      />
+      <Grid container spacing={3}>
+        <Grid item>
+          <RequestOptions
+            setUserStartDate={setUserStartDate}
+            userStartDate={userStartDate}
+            setUserEndDate={setUserEndDate}
+            userEndDate={userEndDate}
+            setUserStartTime={setUserStartTime}
+            userStartTime={userStartTime}
+            setUserEndTime={setUserEndTime}
+            userEndTime={userEndTime}
+            setUserCaller={setUserCaller}
+            userCaller={userCaller}
+            setUserCallee={setUserCallee}
+            userCallee={userCallee}
+            setUserAnsweredBy={setUserAnsweredBy}
+            userAnsweredBy={userAnsweredBy}
+            userMinDuration={userMinDuration}
+            setUserMinDuration={setUserMinDuration}
+            userMaxDuration={userMaxDuration}
+            setUserMaxDuration={setUserMaxDuration}
+            gsExtGroup={gsExtGroup}
+            setUserExtGroup={setUserExtGroup}
+            userExtGroup={userExtGroup}
+            isLoadingExtGroups={isLoadingExtGroups}
+            cdrApiRead={cdrApiRead}
+          />
+        </Grid>
+      </Grid>
+
       <Grid container spacing={3} justifyContent="space-evenly">
         <Grid item>
           <CallTypeOptions
@@ -325,9 +346,22 @@ const CdrView = ({ userMethod, userIpAddress, userPort, gsCookie, showMessage })
       <CDRDataGrid filteredGsCdrApi={filteredGsCdrApi} isLoading={isLoading} />
       <CdrSummary
         filteredGsCdrApi={filteredGsCdrApi}
-        createPdf={buildPdf}
-        userCallerCreate={userCallerCreate}
+        createPdf={() =>
+          buildPdf(
+            filteredGsCdrApi,
+            userStartDate,
+            userStartTime,
+            userEndDate,
+            userEndTime,
+            userCallerCreate
+          )
+        }
+        userExtGroup={userExtGroup}
+        userCaller={userCaller}
+        userCallee={userCallee}
+        userAnsweredBy={userAnsweredBy}
       />
+      {/* <PaginationCdrTable filteredGsCdrTable={filteredGsCdrTable} /> */}
     </Container>
   );
 };
