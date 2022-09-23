@@ -61,3 +61,20 @@ export const validateIPaddress = (ipaddress) => {
   }
   return true;
 };
+
+// Creates string from an array
+// e.g. ["External","Outbound","Inbound"] => External, Outbound and Inbound
+// ["External","Outbound"] => External and Outbound
+// ["Outbound"} => Outbound
+export const makeString = (arr) => {
+  if (arr.length > 0) {
+    if (arr.length === 1) {
+      return arr[0];
+    }
+    const firsts = arr.slice(0, arr.length - 1);
+    const last = arr[arr.length - 1];
+    return firsts.join(", ") + " and " + last;
+  } else {
+    return "";
+  }
+};

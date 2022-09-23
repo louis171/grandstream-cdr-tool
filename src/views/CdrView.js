@@ -7,9 +7,8 @@ import { useNavigate } from "react-router-dom";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import CssBaseline from "@mui/material/CssBaseline";
-import Box from "@mui/material/Box";
 
-import { secondsToHHMMSS } from "../functions/functions";
+import { secondsToHHMMSS, makeString, titleCase } from "../functions/functions";
 import CallTypeOptions from "../components/cdr/CallTypeOptions";
 import CDRDataGrid from "../components/CDRDataGrid";
 import DispositionOptions from "../components/cdr/DispositionOptions";
@@ -297,7 +296,7 @@ const CdrView = ({
   }, [dispositionFilters, callOptionsFilters, gsCdrTable]);
 
   return (
-    <Container component="main" maxWidth="lg">
+    <Container component="main" maxWidth="xl">
       <CssBaseline />
       <Grid container spacing={3}>
         <Grid item>
