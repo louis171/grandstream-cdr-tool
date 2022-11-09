@@ -6,15 +6,20 @@ import Button from "@mui/material/Button";
 import InputAdornment from "@mui/material/InputAdornment";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
+import { useMediaQuery } from "@mui/material";
+import { useTheme } from "@mui/material";
 
 import LuxonAdapter from "../LuxonAdapter";
 import TextfieldGs from "../inputs/TextfieldGs";
 import SelectGs from "../inputs/SelectGs";
+import DateAndTimePickers from "./request/DateAndTimePickers";
 
 import PhoneForwardedRoundedIcon from "@mui/icons-material/PhoneForwardedRounded";
 import PhoneCallbackRoundedIcon from "@mui/icons-material/PhoneCallbackRounded";
 import GroupsRoundedIcon from "@mui/icons-material/GroupsRounded";
 import PhoneRoundedIcon from "@mui/icons-material/PhoneRounded";
+
+import Tooltips from "../../util/tooltips/Tooltips";
 
 const RequestOptions = ({
   setUserStartDate,
@@ -41,79 +46,34 @@ const RequestOptions = ({
   isLoadingExtGroups,
   cdrApiRead,
 }) => {
+  // Fix for margin over request options panel
+  // only applies 42px top margin on lg and above screens
+  const theme = useTheme();
+  const matches = useMediaQuery(theme.breakpoints.up('lg'));
+
+  const mtLg = {
+    mt: "42px",
+  };
+
+  const mtMd = {
+    mt: "0px",
+  };
+
   return (
-    <Grid container spacing={2} p="1em">
-      <Grid
-        item
-        sm={12}
-        md={12}
-        lg={12}
-        sx={{ display: "flex", justifyContent: "center" }}
-      >
-        <LuxonAdapter>
-          <DatePicker
-            label="Start Date"
-            onChange={(e) => setUserStartDate(e)}
-            value={userStartDate}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                sx={{ marginX: (theme) => theme.spacing(1) }}
-                size="small"
-                fullWidth
-              />
-            )}
-          />
-          <TimePicker
-            label="Start Time"
-            onChange={(e) => setUserStartTime(e)}
-            value={userStartTime}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                sx={{ marginX: (theme) => theme.spacing(1) }}
-                size="small"
-                fullWidth
-              />
-            )}
-          />
-          <DatePicker
-            label="End Date"
-            onChange={(e) => setUserEndDate(e)}
-            value={userEndDate}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                sx={{ marginX: (theme) => theme.spacing(1) }}
-                size="small"
-                fullWidth
-              />
-            )}
-          />
-          <TimePicker
-            label="End Time"
-            onChange={(e) => setUserEndTime(e)}
-            value={userEndTime}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                sx={{ marginX: (theme) => theme.spacing(1) }}
-                size="small"
-                fullWidth
-              />
-            )}
-          />
-        </LuxonAdapter>
-      </Grid>
-      <Grid
-        item
-        sm={12}
-        md={12}
-        lg={12}
-        sx={{ display: "flex", justifyContent: "center" }}
-      >
+    <Grid container spacing={2} sx={matches ? mtLg : mtMd}>
+      <DateAndTimePickers
+        setUserStartDate={setUserStartDate}
+        userStartDate={userStartDate}
+        setUserStartTime={setUserStartTime}
+        userStartTime={userStartTime}
+        setUserEndDate={setUserEndDate}
+        userEndDate={userEndDate}
+        setUserEndTime={setUserEndTime}
+        userEndTime={userEndTime}
+      />
+
+      <Grid item sm={6} md={6} lg={12}>
         <TextfieldGs
-          sx={{ marginX: (theme) => theme.spacing(1) }}
           value={userCaller}
           updateFunction={setUserCaller}
           adornmentIcon={
@@ -127,38 +87,11 @@ const RequestOptions = ({
           readOnly={false}
           label="Caller"
           size="small"
-          tooltipText={
-            <span>
-              Filters a specific Caller Number or a range of Caller Numbers via
-              Comma separated extensions, ranges of extensions, or regular
-              expressions. For example:
-              <br />
-              <ul>
-                <li>
-                  <b>02079460000-02079460003,02079460005</b> - Matches
-                  02079460000, 02079460001, 02079460002, 02079460003,
-                  02079460005.
-                </li>
-                <li>
-                  <b>07@</b> - Matches any UK mobile number.
-                </li>
-              </ul>
-              Patterns containing one or more wildcards ('@' or '_') will match
-              as a regular expression, and treat '-' as a literal hyphen rather
-              than a range signifier.
-              <br />
-              <br />
-              The '@' wildcard matches any number of characters (including
-              zero), while '_' matches any single character. Otherwise, patterns
-              containing a single hyphen will be matching a range of numerical
-              extensions, with non-numerical characters ignored, while patterns
-              containing multiple hyphens will be ignored. (The pattern "0-0"
-              will match all non-numerical and empty strings).
-            </span>
-          }
+          tooltipText={Tooltips.userCallerTooltip()}
         />
+      </Grid>
+      <Grid item sm={6} md={6} lg={12}>
         <SelectGs
-          sx={{ marginX: (theme) => theme.spacing(1) }}
           size="small"
           name="extGroupSelect"
           value={userExtGroup}
@@ -177,11 +110,12 @@ const RequestOptions = ({
           itemLabel="group_name"
           itemKey="tmp"
           loading={isLoadingExtGroups}
-          tooltipText="Extension Group"
+          tooltipText={Tooltips.extensionGroupTooltip()}
           canClear={true}
         />
+      </Grid>
+      <Grid item sm={6} md={6} lg={12}>
         <TextfieldGs
-          sx={{ marginX: (theme) => theme.spacing(1) }}
           value={userCallee}
           updateFunction={setUserCallee}
           adornmentIcon={
@@ -196,38 +130,11 @@ const RequestOptions = ({
           label="Callee"
           size="small"
           disabled={userAnsweredBy.length > 0 ? true : false}
-          tooltipText={
-            <span>
-              Filters a specific Callee Number or a range of Callee Numbers via
-              Comma separated extensions, ranges of extensions, or regular
-              expressions. For example:
-              <br />
-              <ul>
-                <li>
-                  <b>5300,5302-5304</b> - Matches extensions 5300, 5302, 5303,
-                  5304.
-                </li>
-                <li>
-                  <b>_4@</b> - Matches any extension containing 4 as the second
-                  digit.
-                </li>
-              </ul>
-              Patterns containing one or more wildcards ('@' or '_') will match
-              as a regular expression, and treat '-' as a literal hyphen rather
-              than a range signifier.
-              <br />
-              <br />
-              The '@' wildcard matches any number of characters (including
-              zero), while '_' matches any single character. Otherwise, patterns
-              containing a single hyphen will be matching a range of numerical
-              extensions, with non-numerical characters ignored, while patterns
-              containing multiple hyphens will be ignored. (The pattern "0-0"
-              will match all non-numerical and empty strings).
-            </span>
-          }
+          tooltipText={Tooltips.userCalleeTooltip()}
         />
+      </Grid>
+      <Grid item sm={6} md={6} lg={12}>
         <TextfieldGs
-          sx={{ marginX: (theme) => theme.spacing(1) }}
           value={userAnsweredBy}
           updateFunction={setUserAnsweredBy}
           adornmentIcon={
@@ -242,46 +149,11 @@ const RequestOptions = ({
           label="Answered by"
           size="small"
           disabled={userCallee.length > 0 ? true : false}
-          tooltipText={
-            <span>
-              Filters a specific Callee Number or a range of Callee Numbers via
-              Comma separated extensions, ranges of extensions, or regular
-              expressions. For example:
-              <br />
-              <ul>
-                <li>
-                  <b>5300,5302-5304</b> - Matches extensions 5300, 5302, 5303,
-                  5304.
-                </li>
-                <li>
-                  <b>_4@</b> - Matches any extension containing 4 as the second
-                  digit.
-                </li>
-              </ul>
-              Patterns containing one or more wildcards ('@' or '_') will match
-              as a regular expression, and treat '-' as a literal hyphen rather
-              than a range signifier.
-              <br />
-              <br />
-              The '@' wildcard matches any number of characters (including
-              zero), while '_' matches any single character. Otherwise, patterns
-              containing a single hyphen will be matching a range of numerical
-              extensions, with non-numerical characters ignored, while patterns
-              containing multiple hyphens will be ignored. (The pattern "0-0"
-              will match all non-numerical and empty strings).
-            </span>
-          }
+          tooltipText={Tooltips.userAnsweredByTooltip()}
         />
       </Grid>
-      <Grid
-        item
-        sm={12}
-        md={12}
-        lg={12}
-        sx={{ display: "flex", justifyContent: "center" }}
-      >
+      <Grid item sm={6} md={6} lg={6}>
         <TextfieldGs
-          sx={{ marginX: (theme) => theme.spacing(1) }}
           value={userMinDuration}
           updateFunction={setUserMinDuration}
           adornmentIcon={
@@ -296,22 +168,11 @@ const RequestOptions = ({
           label="Min Duration"
           size="small"
           type="number"
-          tooltipText={
-            <span>
-              Filters based in a minimum Billable duration in seconds. For
-              example:
-              <br />
-              <ul>
-                <li>
-                  <b>10</b> - Only returns CDR entries with a Billable Duration
-                  of 10 seconds or above.
-                </li>
-              </ul>
-            </span>
-          }
+          tooltipText={Tooltips.userMinDurationTooltip()}
         />
+      </Grid>
+      <Grid item sm={6} md={6} lg={6}>
         <TextfieldGs
-          sx={{ marginX: (theme) => theme.spacing(1) }}
           value={userMaxDuration}
           updateFunction={setUserMaxDuration}
           adornmentIcon={
@@ -326,19 +187,7 @@ const RequestOptions = ({
           label="Max Duration"
           size="small"
           type="number"
-          tooltipText={
-            <span>
-              Filters based in a maximum Billable duration in seconds. For
-              example:
-              <br />
-              <ul>
-                <li>
-                  <b>10</b> - Only returns CDR entries with a Billable Duration
-                  of 10 seconds or less.
-                </li>
-              </ul>
-            </span>
-          }
+          tooltipText={Tooltips.userMaxDurationTooltip()}
         />
       </Grid>
       <Grid
@@ -348,12 +197,7 @@ const RequestOptions = ({
         lg={12}
         sx={{ display: "flex", justifyContent: "center" }}
       >
-        <Button
-          fullWidth
-          variant="contained"
-          type="button"
-          onClick={cdrApiRead}
-        >
+        <Button variant="contained" type="button" onClick={cdrApiRead}>
           Read
         </Button>
       </Grid>

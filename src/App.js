@@ -22,7 +22,7 @@ const App = () => {
   const [saveChecked, setSaveChecked] = useState(false);
 
   const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState("I'm a custom snackbar");
+  const [message, setMessage] = useState("");
   const [duration, setDuration] = useState(2000);
   const [severity, setSeverity] =
     useState("success"); /** error | warning | info */

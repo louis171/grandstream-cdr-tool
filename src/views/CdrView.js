@@ -1,14 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { useNavigate } from "react-router-dom";
 
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import CssBaseline from "@mui/material/CssBaseline";
-
-import { secondsToHHMMSS, makeString, titleCase } from "../functions/functions";
 import CallTypeOptions from "../components/cdr/CallTypeOptions";
 import CDRDataGrid from "../components/CDRDataGrid";
 import DispositionOptions from "../components/cdr/DispositionOptions";
@@ -17,10 +14,8 @@ import CdrSummary from "../components/cdr/CdrSummary";
 
 import { gsReturnCodeHandler } from "../functions/gsReturnCodeHandler";
 import requestOptionsUtil from "../util/RequestOptionsUtil";
-
-import { dummyTableData } from "../DUMMY_DATA";
-import PaginationCdrTable from "../components/cdr/table/PaginationCdrTable";
 import buildPdf from "../functions/buildPdf";
+import cdrUtil from "../util/cdrUtil";
 
 const CdrView = ({
   userMethod,
@@ -138,7 +133,7 @@ const CdrView = ({
         // let tableData = fixTableData(res.data.cdr_root.filter((n) => n)); // Filters data to remove empty objects
         // setGsCdrTable(tableData);
 
-        let data = fixGsData(res.data.cdr_root.filter((n) => n)); // Filters data to remove empty objects
+        let data = cdrUtil.fixGsData(res.data.cdr_root.filter((n) => n)); // Filters data to remove empty objects
         setGsCdrApi(data);
         setIsLoading(false);
       })
@@ -147,52 +142,6 @@ const CdrView = ({
         showMessage(`Error sending request: ${err.toString()}`, "error", 2000);
         navigate("/");
       });
-
-    // axios
-    //   .post(`${userMethod}://${userIpAddress}:${userPort}/api`, {
-    //     request: {
-    //       action: "recapi",
-    //       cookie: gsCookie,
-    //       filedir: "monitor",
-    //     },
-    //   })
-    //   .then((res) => {
-    //     console.log(res);
-    //   })
-    //   .catch((err) => {
-    //     console.log(err);
-    //   });
-  };
-
-  // useEffect(() => {
-  //   let tableData = fixTableData(dummyTableData);
-  //   setGsCdrTable(tableData);
-  // }, []);
-
-  const fixGsData = (data) => {
-    // Break returned CDR array into objects
-    data.forEach((row) => {
-      // Check the length of objects. Continues if below 44
-      if (Object.keys(row).length < 44) {
-        // if the length of the object is below 44 then create a new array of the object using the keys of each child object
-        let arr = Object.keys(row).map((k) => row[k]);
-        // Filter array to remove empty or blank objects
-        arr = arr.filter((n) => n);
-        // Add each object of the new array created above to the existing CDRData array
-        arr.forEach((subRow) => {
-          data = [...data, subRow];
-        });
-        // Get the index of the row being processed
-        const index = data.indexOf(row);
-        // If the index is greater than -1. e.i. the data is present
-        if (index > -1) {
-          // Removes 1 element in the array from the index position. i.e. deletes the incorrect object
-          data.splice(index, 1);
-        }
-      }
-    });
-    // Returns fixed data
-    return data;
   };
 
   useEffect(() => {
@@ -226,46 +175,6 @@ const CdrView = ({
     setFilteredGsCdrApi(data);
   }, [dispositionFilters, callOptionsFilters, gsCdrApi]);
 
-  const fixTableData = (data) => {
-    // break data into objects
-    data.forEach((row) => {
-      // Removes empty cdr object that is often returned from UCM63XX PBXs
-      // e.g. cdr: ""
-      delete row["cdr"];
-      // Creates new empty array
-      let arr = [];
-      // Iterates through the keys of the object
-      for (const key in row) {
-        // .hasOwnProperty returns a boolean indicating whether the object has the specified property
-        // .call allows another object to be substituted (in this case the row) where we look for the keys
-        if (Object.hasOwnProperty.call(row, key)) {
-          const element = row[key];
-          // checks the type of the returned element looking for objects
-          if (typeof element === "object") {
-            // if the returned element is an object then add to the array
-            arr.push(element);
-          }
-        }
-      }
-      // If the array has any content then add back to the original data
-      if (arr.length > 0) {
-        data = [...data, arr];
-      } else {
-        data = [...data, [row]];
-      }
-      // find index of the row being processed
-      const index = data.indexOf(row);
-
-      // If the indexed row exists
-      if (index > -1) {
-        // Removes 1 element in the array from the index position
-        // i.e. remove the old object from the data
-        data.splice(index, 1);
-      }
-    });
-    return data;
-  };
-
   useEffect(() => {
     // Checks if there are NO filter options selected. Sets filtered data to initial cdr data
     if (dispositionFilters.length === 0 && callOptionsFilters.length === 0) {
@@ -296,10 +205,10 @@ const CdrView = ({
   }, [dispositionFilters, callOptionsFilters, gsCdrTable]);
 
   return (
-    <Container component="main" maxWidth="xl">
+    <Container component="main" maxWidth="false">
       <CssBaseline />
-      <Grid container spacing={3}>
-        <Grid item>
+      <Grid container spacing={2}>
+        <Grid item sm={12} md={12} lg={3}>
           <RequestOptions
             setUserStartDate={setUserStartDate}
             userStartDate={userStartDate}
@@ -326,40 +235,50 @@ const CdrView = ({
             cdrApiRead={cdrApiRead}
           />
         </Grid>
+        <Grid item sm={12} md={12} lg={9}>
+          <Grid container spacing={2}>
+            <Grid item sm={12} md={12} lg={12} sx={{ display: "flex" }}>
+              <CallTypeOptions
+                setCallOptionsFilters={setCallOptionsFilters}
+                callOptionsFilters={callOptionsFilters}
+              />
+              <DispositionOptions
+                setDispositionFilters={setDispositionFilters}
+                dispositionFilters={dispositionFilters}
+              />
+            </Grid>
+            <Grid item sm={12} md={12} lg={12}>
+              <CDRDataGrid
+                filteredGsCdrApi={filteredGsCdrApi}
+                isLoading={isLoading}
+              />
+            </Grid>
+            <Grid item sm={12} md={12} lg={12}>
+              <CdrSummary
+                filteredGsCdrApi={filteredGsCdrApi}
+                createPdf={() =>
+                  buildPdf(
+                    filteredGsCdrApi,
+                    userStartDate,
+                    userStartTime,
+                    userEndDate,
+                    userEndTime,
+                    userExtGroup, 
+                    userCaller,
+                    userCallee,
+                    userAnsweredBy
+                  )
+                }
+                userExtGroup={userExtGroup}
+                userCaller={userCaller}
+                userCallee={userCallee}
+                userAnsweredBy={userAnsweredBy}
+              />
+            </Grid>
+          </Grid>
+        </Grid>
       </Grid>
 
-      <Grid container spacing={3} justifyContent="space-evenly">
-        <Grid item>
-          <CallTypeOptions
-            setCallOptionsFilters={setCallOptionsFilters}
-            callOptionsFilters={callOptionsFilters}
-          />
-        </Grid>
-        <Grid item>
-          <DispositionOptions
-            setDispositionFilters={setDispositionFilters}
-            dispositionFilters={dispositionFilters}
-          />
-        </Grid>
-      </Grid>
-      <CDRDataGrid filteredGsCdrApi={filteredGsCdrApi} isLoading={isLoading} />
-      <CdrSummary
-        filteredGsCdrApi={filteredGsCdrApi}
-        createPdf={() =>
-          buildPdf(
-            filteredGsCdrApi,
-            userStartDate,
-            userStartTime,
-            userEndDate,
-            userEndTime,
-            userCallerCreate
-          )
-        }
-        userExtGroup={userExtGroup}
-        userCaller={userCaller}
-        userCallee={userCallee}
-        userAnsweredBy={userAnsweredBy}
-      />
       {/* <PaginationCdrTable filteredGsCdrTable={filteredGsCdrTable} /> */}
     </Container>
   );

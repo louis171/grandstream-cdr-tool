@@ -1,6 +1,7 @@
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { secondsToHHMMSS } from "../functions/functions";
+import requestOptionsUtil from "../util/RequestOptionsUtil";
 
 const buildPdf = (
   filteredGsCdrApi,
@@ -8,7 +9,10 @@ const buildPdf = (
   userStartTime,
   userEndDate,
   userEndTime,
-  userCallerCreate
+  userExtGroup,
+  userCaller,
+  userCallee,
+  userAnsweredBy
 ) => {
   // Takes filtered cdr data and maps it to a new array. Removing not required data
   const rows = filteredGsCdrApi.map((obj) => {
@@ -34,9 +38,26 @@ const buildPdf = (
   doc.setFontSize(12);
   doc.setTextColor("#161C22");
   // Summary of 200,201
-  doc.text(`Summary of ${userCallerCreate()}`, 12.7, 12.7, {
-    maxWidth: 159.2,
-  });
+  doc.text(
+    `Caller: ${
+      requestOptionsUtil.userCallerCreate(userExtGroup, userCaller)
+        ? requestOptionsUtil.userCallerCreate(userExtGroup, userCaller)
+        : "All"
+    }. Callee: ${
+      requestOptionsUtil.userCalleeCreate(userCallee)
+        ? requestOptionsUtil.userCalleeCreate(userCallee)
+        : "All"
+    }. Answered by: ${
+      requestOptionsUtil.userAnsweredByCreate(userAnsweredBy)
+        ? requestOptionsUtil.userAnsweredByCreate(userAnsweredBy)
+        : "All"
+    }`,
+    12.7,
+    12.7,
+    {
+      maxWidth: 159.2,
+    }
+  );
   // Sat Jun 04 2022 09:00:00 - Mon Jul 04 2022 17:00:00
   doc.text(
     `${userStartDate.toDateString()} ${new Date(
@@ -90,7 +111,19 @@ const buildPdf = (
   // Build pdf file name e.g.
   // 200,201,202,205,203,204 - Sat Jun 04 2022 09_00_00 - Mon Jul 04 2022 17_00_00.pdf
   doc.save(
-    `${userCallerCreate()} - ${userStartDate.toDateString()} ${new Date(
+    `Caller ${
+      requestOptionsUtil.userCallerCreate(userExtGroup, userCaller)
+        ? requestOptionsUtil.userCallerCreate(userExtGroup, userCaller)
+        : "All"
+    } Callee ${
+      requestOptionsUtil.userCalleeCreate(userCallee)
+        ? requestOptionsUtil.userCalleeCreate(userCallee)
+        : "All"
+    } Answered by ${
+      requestOptionsUtil.userAnsweredByCreate(userAnsweredBy)
+        ? requestOptionsUtil.userAnsweredByCreate(userAnsweredBy)
+        : "All"
+    } - ${userStartDate.toDateString()} ${new Date(
       userStartTime
     ).toLocaleTimeString("en-GB")} - ${new Date(
       userEndDate

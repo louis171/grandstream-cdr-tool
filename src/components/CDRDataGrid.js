@@ -18,7 +18,7 @@ const CDRDataGrid = (props) => {
     mode === "dark" ? darken(color, 0.5) : lighten(color, 0.5);
 
   return (
-    <Grid container spacing={2} sx={{ mt: ".5em" }}>
+    <Grid container spacing={2}>
       <Grid item xs={12} md={12} lg={12}>
         <div style={{ height: 450, width: "100%" }}>
           <div style={{ display: "flex", height: "100%" }}>
