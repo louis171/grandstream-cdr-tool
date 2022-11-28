@@ -4,7 +4,6 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
-
 import Skeleton from "@mui/material/Skeleton";
 
 import LoadingSkeleton from "../LoadingSkeleton";

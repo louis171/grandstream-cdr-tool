@@ -8,6 +8,10 @@ const TextfieldGs = ({
   value,
   sx,
   updateFunction,
+  updateStateHandler,
+  dataKey,
+  dataType = "str",
+  dataObj,
   adornmentText,
   adornmentIcon,
   adornmentPosition,
@@ -16,11 +20,24 @@ const TextfieldGs = ({
   size,
   type,
   label,
-  tooltipText,
+  tooltipText = "",
   error,
   helperText,
   disabled,
 }) => {
+  const handleInputValueChange = (e) => {
+    if (updateStateHandler === undefined) {
+      updateFunction(e.target.value);
+    } else {
+      updateStateHandler({
+        value: e.target.value,
+        key: dataKey,
+        type: dataType,
+        obj: dataObj
+      });
+    }
+  };
+
   return (
     <TextField
       sx={[
@@ -34,19 +51,19 @@ const TextfieldGs = ({
       helperText={helperText}
       type={type === "" ? "text" : type}
       size={size === "" ? "medium" : size}
-      onChange={(e) => updateFunction(e.target.value)}
+      onChange={(e) => handleInputValueChange(e)}
       InputProps={{
         readOnly: readOnly,
         startAdornment: (
           <Tooltip title={tooltipText} arrow>
             <InputAdornment
               position={
-                adornmentPosition === null ? "start" : adornmentPosition
+                adornmentPosition === undefined ? "start" : adornmentPosition
               }
               sx={{ cursor: "default" }}
             >
               {adornmentIcon}
-              {adornmentText === "" ? null : adornmentText}
+              {adornmentText === "" ? undefined : adornmentText}
             </InputAdornment>
           </Tooltip>
         ),

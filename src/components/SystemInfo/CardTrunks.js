@@ -67,7 +67,7 @@ const CardTrunks = ({
               <Skeleton variant="text" />
             ) : (
               listVoipTrunk.voip_trunk.map((trunk) => (
-                <Typography key={trunk.trunk_index} sx={{ fontSize: ".8rem" }} variant="body2">
+                <Typography key={`voipname${trunk.trunk_index}`} sx={{ fontSize: ".8rem" }} variant="body2">
                   {trunk.trunk_name ? trunk.trunk_name : "-"}
                 </Typography>
               ))
@@ -84,7 +84,7 @@ const CardTrunks = ({
               <Skeleton variant="text" />
             ) : (
               listVoipTrunk.voip_trunk.map((trunk) => (
-                <Typography sx={{ fontSize: ".8rem" }} variant="body2">
+                <Typography key={`voipusername${trunk.trunk_index}`} sx={{ fontSize: ".8rem" }} variant="body2">
                   {trunk.username ? trunk.username : "-"}
                 </Typography>
               ))
@@ -101,7 +101,7 @@ const CardTrunks = ({
               <Skeleton variant="text" />
             ) : (
               listVoipTrunk.voip_trunk.map((trunk) => (
-                <Typography sx={{ fontSize: ".8rem" }} variant="body2">
+                <Typography key={`voiphost${trunk.trunk_index}`} sx={{ fontSize: ".8rem" }} variant="body2">
                   {trunk.host ? trunk.host : "-"}
                 </Typography>
               ))
@@ -118,7 +118,7 @@ const CardTrunks = ({
               <Skeleton variant="text" />
             ) : (
               listVoipTrunk.voip_trunk.map((trunk) => (
-                <Typography sx={{ fontSize: ".8rem" }} variant="body2">
+                <Typography key={`voiptype${trunk.trunk_index}`} sx={{ fontSize: ".8rem" }} variant="body2">
                   {trunk.trunk_type ? trunk.trunk_type : "-"}
                 </Typography>
               ))
@@ -138,7 +138,7 @@ const CardTrunks = ({
               <Skeleton variant="text" />
             ) : (
               listAnalogTrunk.analogtrunk.map((trunk) => (
-                <Typography sx={{ fontSize: ".8rem" }} variant="body2">
+                <Typography key={`analogname${trunk.trunk_index}`} sx={{ fontSize: ".8rem" }} variant="body2">
                   {trunk.trunk_name ? trunk.trunk_name : "-"}
                 </Typography>
               ))
@@ -155,7 +155,7 @@ const CardTrunks = ({
               <Skeleton variant="text" />
             ) : (
               listAnalogTrunk.analogtrunk.map((trunk) => (
-                <Typography sx={{ fontSize: ".8rem" }} variant="body2">
+                <Typography key={`analogchans${trunk.trunk_index}`} sx={{ fontSize: ".8rem" }} variant="body2">
                   {trunk.chans ? trunk.chans : "-"}
                 </Typography>
               ))
@@ -172,7 +172,7 @@ const CardTrunks = ({
               <Skeleton variant="text" />
             ) : (
               listAnalogTrunk.analogtrunk.map((trunk) => (
-                <Typography sx={{ fontSize: ".8rem" }} variant="body2">
+                <Typography key={`analogoos${trunk.trunk_index}`} sx={{ fontSize: ".8rem" }} variant="body2">
                   {trunk.out_of_service ? trunk.out_of_service : "-"}
                 </Typography>
               ))
@@ -189,7 +189,7 @@ const CardTrunks = ({
               <Skeleton variant="text" />
             ) : (
               listAnalogTrunk.analogtrunk.map((trunk) => (
-                <Typography sx={{ fontSize: ".8rem" }} variant="body2">
+                <Typography key={`analogmode${trunk.trunk_index}`} sx={{ fontSize: ".8rem" }} variant="body2">
                   {trunk.trunkmode ? trunk.trunkmode : "-"}
                 </Typography>
               ))

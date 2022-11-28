@@ -149,7 +149,7 @@ const CardAccounts = ({ listAccounts, isLoadingAccounts }) => {
                   ) : (
                     listAccounts.map((row) => (
                       <TableRow
-                        key={row.name}
+                        key={row.fullname}
                         sx={{
                           "&:last-child td, &:last-child th": {
                             border: 0,

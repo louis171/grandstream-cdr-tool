@@ -23,9 +23,26 @@ const SelectGs = ({
   itemLabel,
   itemKey,
   loading,
-  tooltipText,
+  tooltipText = "",
   canClear,
+  updateStateHandler,
+  dataKey,
+  dataType = "select",
+  dataObj,
+  readOnly = false,
 }) => {
+  const handleInputValueChange = (e) => {
+    if (updateStateHandler === undefined) {
+      updateFunction(e.target.value);
+    } else {
+      updateStateHandler({
+        value: e.target.value,
+        key: dataKey,
+        type: dataType,
+        obj: dataObj
+      });
+    }
+  };
   return (
     <TextField
       sx={sx}
@@ -36,8 +53,9 @@ const SelectGs = ({
       select
       variant="outlined"
       value={value}
-      onChange={(e) => updateFunction(e.target.value)}
+      onChange={(e) => handleInputValueChange(e)}
       InputProps={{
+        readOnly: readOnly,
         // Adornment at the start of the select
         // Configured as:
         //  <Tooltip>
@@ -50,11 +68,11 @@ const SelectGs = ({
           <Tooltip title={tooltipText} arrow>
             <InputAdornment
               position={
-                adornmentPosition === null ? "start" : adornmentPosition
+                adornmentPosition === undefined ? "start" : adornmentPosition
               }
             >
               {adornmentIcon}
-              {adornmentText === "" ? null : adornmentText}
+              {adornmentText === "" ? undefined : adornmentText}
             </InputAdornment>
           </Tooltip>
         ),

@@ -134,6 +134,7 @@ const CdrView = ({
         // setGsCdrTable(tableData);
 
         let data = cdrUtil.fixGsData(res.data.cdr_root.filter((n) => n)); // Filters data to remove empty objects
+        console.log(data);
         setGsCdrApi(data);
         setIsLoading(false);
       })

@@ -92,7 +92,7 @@ export const gsReturnCodeHandler = (code) => {
         "There are currently digital calls. Failed to apply configuration";
       break;
     default:
-      message = "Unknown error";
+      message = `Unknown error: ${code}`;
       break;
   }
   return message;
